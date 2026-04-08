@@ -1,0 +1,89 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "userid": "user1",
+      "password": "1234",
+      "roles": [
+        "users"
+      ],
+      "profileImage": "/uploads/profile/user1_1775310095710.png"
+    },
+    {
+      "id": 3,
+      "userid": "admin",
+      "password": "1234",
+      "roles": [
+        "users",
+        "admins"
+      ],
+      "profileImage": null
+    }
+  ],
+  "todos": [
+    {
+      "id": 1,
+      "userId": 1,
+      "todo": "Vue Router 학습",
+      "desc": "네비게이션 가드 공부하기",
+      "done": false,
+      "targetDate": "2026-04-05",
+      "completedDate": null
+    },
+    {
+      "id": 2,
+      "userId": 1,
+      "todo": "Pinia 학습",
+      "desc": "상태 관리 라이브러리",
+      "done": true,
+      "targetDate": "2026-04-01",
+      "completedDate": "2026-03-30"
+    },
+    {
+      "id": 3,
+      "userId": 3,
+      "todo": "test",
+      "desc": "test",
+      "done": true,
+      "targetDate": "2026-04-10",
+      "completedDate": "2026-04-08"
+    },
+    {
+      "id": 4,
+      "userId": 1,
+      "todo": "test",
+      "desc": "test",
+      "done": true,
+      "targetDate": "2026-03-31",
+      "completedDate": "2026-03-30"
+    },
+    {
+      "userId": "1",
+      "todo": "TEST",
+      "desc": "TEST",
+      "done": true,
+      "targetDate": "2026-04-16",
+      "completedDate": "2026-04-05",
+      "id": 9
+    },
+    {
+      "userId": 3,
+      "todo": "TEST",
+      "desc": "TEST",
+      "done": false,
+      "targetDate": "2026-04-22",
+      "completedDate": null,
+      "id": 10
+    },
+    {
+      "userId": 1,
+      "todo": "ㅅㄷㄴㅅ",
+      "desc": "ㅅㄷㄴㅅ",
+      "done": true,
+      "targetDate": null,
+      "completedDate": "2026-04-05",
+      "id": 11
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

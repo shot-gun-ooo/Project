@@ -1,0 +1,36 @@
+{
+  "name": "vue-todo-auth-project",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "server": "json-server db.json --port 3000",
+    "start": "npx concurrently --raw \"npm run dev\" \"npm run server\""
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.2.0",
+    "axios": "^1.14.0",
+    "bootstrap": "^5.3.8",
+    "chart.js": "^4.5.1",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "json-server": "^0.17.4",
+    "multer": "^2.1.1",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.27",
+    "vue-chartjs": "^5.3.3",
+    "vue-csspin": "^0.1.12",
+    "vue-router": "^5.0.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.3",
+    "vite": "^7.3.1",
+    "vite-plugin-vue-devtools": "^8.0.5"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  }
+}

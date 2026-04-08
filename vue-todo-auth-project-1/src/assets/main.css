@@ -1,0 +1,94 @@
+/* 앱 전체 기본 스타일 */
+body {
+  background-color: #f8f9fa;
+}
+
+.container {
+  max-width: 480px;
+  padding: 0;
+}
+
+/* 상단 헤더 */
+.app-header {
+  background: linear-gradient(135deg, #0d6efd, #6610f2);
+  color: white;
+  padding: 24px 20px 28px;
+  border-radius: 0 0 24px 24px;
+}
+
+.profile-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  font-size: 40px;
+  color: white;
+  line-height: 1;
+}
+
+/* 빠른 메뉴 아이콘 박스 */
+.menu-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+/* 하단 네비게이션 */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  border-top: 1px solid #e9ecef;
+  z-index: 100;
+}
+
+.bottom-nav a {
+  text-decoration: none;
+  color: #adb5bd;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.bottom-nav a.active {
+  color: #0d6efd;
+}
+
+.bottom-icon {
+  font-size: 20px;
+}
+
+/* Todo */
+.pointer {
+  cursor: pointer;
+}
+
+.todo-done {
+  text-decoration: line-through;
+  color: #6c757d;
+}
+
+/* 하단 네비 높이만큼 본문 여백 */
+.home-page,
+.mypage-wrap {
+  padding-bottom: 80px;
+}
