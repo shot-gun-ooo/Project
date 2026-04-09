@@ -21,44 +21,15 @@
       "password": "34567"
     },
     {
-      "userid": "user3",
-      "name": "김은수",
-      "email": "kim@kb.com",
-      "password": "34567",
+      "id": 3,
+      "userid": "admin",
+      "name": "관리자",
+      "email": "admin@kb.com",
+      "password": "1234",
       "roles": [
-        "users"
-      ],
-      "id": "uWme0ep"
-    },
-    {
-      "name": "ccc",
-      "userid": "ccc",
-      "email": "ccc",
-      "password": "lkllll",
-      "roles": [
-        "users"
-      ],
-      "id": "KK1bWpC"
-    },
-    {
-      "name": "ggg",
-      "userid": "ggg",
-      "email": "ggg",
-      "password": "ggg",
-      "roles": [
-        "users"
-      ],
-      "id": "QyeC3fE"
-    },
-    {
-      "name": "qqq",
-      "userid": "qqq",
-      "email": "qqq",
-      "password": "qqq",
-      "roles": [
-        "users"
-      ],
-      "id": "4lY1c97"
+        "users",
+        "admins"
+      ]
     }
   ],
   "transactions": [
@@ -144,21 +115,48 @@
     }
   ],
   "incomeCategory": [
-    "월급",
-    "용돈",
-    "이자",
-    "부업",
-    "기타"
+    {
+      "id": 4,
+      "name": "부업"
+    },
+    {
+      "id": 5,
+      "name": "기타"
+    }
   ],
   "expenseCategory": [
-    "식비",
-    "교통비",
-    "유흥",
-    "공과금",
-    "의료",
-    "주거",
-    "쇼핑",
-    "저축"
+    {
+      "id": 1,
+      "name": "식비"
+    },
+    {
+      "id": 2,
+      "name": "교통비"
+    },
+    {
+      "id": 3,
+      "name": "유흥"
+    },
+    {
+      "id": 4,
+      "name": "공과금"
+    },
+    {
+      "id": 5,
+      "name": "의료"
+    },
+    {
+      "id": 6,
+      "name": "주거"
+    },
+    {
+      "id": 7,
+      "name": "쇼핑"
+    },
+    {
+      "id": 8,
+      "name": "저축"
+    }
   ],
   "periodicExpense": [
     {

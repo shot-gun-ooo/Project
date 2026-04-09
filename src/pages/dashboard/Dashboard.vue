@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
-import { api } from "@/api/index.js";
+import { ref, onMounted, computed } from 'vue';
+import { api } from '@/api/index.js';
 
 const transactions = ref([]);
 const latestTransactions = ref([]);
@@ -25,20 +25,20 @@ const fetchData = async () => {
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 5);
   } catch (error) {
-    console.error("데이터 로드 실패:", error);
+    console.error('데이터 로드 실패:', error);
   }
 };
 
 // [계산 로직]
 const incomeTotal = computed(() => {
   return transactions.value
-    .filter((t) => t.type === "income")
+    .filter((t) => t.type === 'income')
     .reduce((sum, t) => sum + Number(t.amount), 0);
 });
 
 const expenseTotal = computed(() => {
   return transactions.value
-    .filter((t) => t.type === "expense")
+    .filter((t) => t.type === 'expense')
     .reduce((sum, t) => sum + Number(t.amount), 0);
 });
 
@@ -72,15 +72,13 @@ onMounted(fetchData);
             </defs>
             <path
               d="M0,180 C100,160 200,170 300,90 C400,60 500,110 600,70 L600,200 L0,200 Z"
-              fill="url(#chart-gradient)"
-            />
+              fill="url(#chart-gradient)" />
             <path
               d="M0,180 C100,160 200,170 300,90 C400,60 500,110 600,70"
               fill="none"
               stroke="#ff7e7e"
               stroke-width="4"
-              stroke-linecap="round"
-            />
+              stroke-linecap="round" />
             <circle cx="300" cy="90" r="6" fill="#ff7e7e" />
           </svg>
           <div class="month-labels">
@@ -143,8 +141,7 @@ onMounted(fetchData);
         <div class="usage-bar-bg">
           <div
             class="usage-bar-fill"
-            :style="{ width: Math.min(budgetUsageRate, 100) + '%' }"
-          ></div>
+            :style="{ width: Math.min(budgetUsageRate, 100) + '%' }"></div>
         </div>
         <p>
           목표 대비 <strong>{{ budgetUsageRate }}%</strong> 사용 중

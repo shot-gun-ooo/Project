@@ -10,8 +10,8 @@ const USERS_URI = '/api/users';
 const routesToRoles = [
   { name: 'users/login', roles: ['everybody'] },
   { name: 'users/signup', roles: ['everybody'] },
-  { name: 'users/my', roles: ['everybody'] },
-  { name: 'dashboard', roles: ['everybody'] },
+  { name: 'users/my', roles: ['users'] },
+  { name: 'dashboard', roles: ['users'] },
   { name: 'trans', roles: ['users'] },
   { name: 'budget', roles: ['users'] },
   { name: 'wishlist', roles: ['users'] },

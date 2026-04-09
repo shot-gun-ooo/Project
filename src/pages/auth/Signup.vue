@@ -19,18 +19,33 @@
         type="text"
         class="signup-input"
         placeholder="아이디를 입력하세요" />
+      <p
+        v-if="userid.length > 0 && !isIdValid"
+        style="color: red; font-size: 11px">
+        아이디는 영문 소문자와 숫자 조합으로 4~12자여야 합니다.
+      </p>
 
       <input
         v-model="email"
         type="email"
         class="signup-input"
         placeholder="이메일를 입력하세요" />
+      <p
+        v-if="email.length > 0 && !isEmailValid"
+        style="color: red; font-size: 11px">
+        이메일 형식에 맞게 입력해야 합니다.
+      </p>
 
       <input
         v-model="password"
         type="password"
         class="signup-input"
         placeholder="비밀번호를 입력하세요" />
+      <p
+        v-if="password.length > 0 && !ispasswordValid"
+        style="color: red; font-size: 11px">
+        비밀번호는 영문 소문자와 숫자 조합으로 4~12자여야 합니다.
+      </p>
 
       <div class="agreement-text">
         '가입하기'를 클릭함으로써, <strong>이용약관</strong> 및 <br />
@@ -45,7 +60,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
@@ -56,6 +71,24 @@ const name = ref('');
 const userid = ref('');
 const email = ref('');
 const password = ref('');
+
+// 아이디 형식 검사
+const isIdValid = computed(() => {
+  const idRegex = /^[a-z0-9]{4,12}$/;
+  return idRegex.test(userid.value);
+});
+
+// 이메일 형식 검사
+const isEmailValid = computed(() => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return emailRegex.test(email.value);
+});
+
+// 비밀번호 형식 검사
+const ispasswordValid = computed(() => {
+  const passwordRegex = /^[a-z0-9]{4,12}$/;
+  return passwordRegex.test(userid.value);
+});
 
 const handleSignup = async () => {
   // 1. 모든 항목이 입력되었는지 확인.
@@ -81,13 +114,13 @@ const handleSignup = async () => {
   }
 
   // 가입이 완료되었는지 확인하기 위한 것.
-  console.log('가입 시도:', {
-    name: name.value,
-    userid: userid.value,
-    email: email.value,
-    password: password.value,
-  });
-  alert('회원가입 버튼 클릭됨!');
+  // console.log('가입 시도:', {
+  //   name: name.value,
+  //   userid: userid.value,
+  //   email: email.value,
+  //   password: password.value,
+  // });
+  // alert('회원가입 버튼 클릭됨!');
 };
 </script>
 

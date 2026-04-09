@@ -1,51 +1,57 @@
-import { createRouter, createWebHistory } from "vue-router";
-import { isMatchToRoles } from "../utils/authutil";
+import { createRouter, createWebHistory } from 'vue-router';
+import { isMatchToRoles } from '../utils/authutil';
 
-import Login from "../pages/auth/Login.vue";
-import My from "../pages/auth/My.vue";
-import Signup from "../pages/auth/Signup.vue";
-import Budget from "../pages/budget/Budget.vue";
-import Dashboard from "../pages/dashboard/Dashboard.vue";
-import Transaction from "../pages/transaction/Transaction.vue";
-import Wishlist from "../pages/Wishlist/Wishlist.vue";
+import Login from '../pages/auth/Login.vue';
+import My from '../pages/auth/My.vue';
+import Signup from '../pages/auth/Signup.vue';
+import Budget from '../pages/budget/Budget.vue';
+import Dashboard from '../pages/dashboard/Dashboard.vue';
+import Transaction from '../pages/transaction/Transaction.vue';
+import Wishlist from '../pages/Wishlist/Wishlist.vue';
+import Admin from '../pages/auth/Admin.vue';
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: "/",
-      name: "dashboard",
+      path: '/',
+      name: 'dashboard',
       component: Dashboard,
     },
     {
-      path: "/trans",
-      name: "trans",
+      path: '/trans',
+      name: 'trans',
       component: Transaction,
     },
     {
-      path: "/budget",
-      name: "budget",
+      path: '/budget',
+      name: 'budget',
       component: Budget,
     },
     {
-      path: "/wishlist",
-      name: "wishlist",
+      path: '/wishlist',
+      name: 'wishlist',
       component: Wishlist,
     },
     {
-      path: "/users/signup",
-      name: "users/signup",
+      path: '/users/signup',
+      name: 'users/signup',
       component: Signup,
     },
     {
-      path: "/users/login",
-      name: "users/login",
+      path: '/users/login',
+      name: 'users/login',
       component: Login,
     },
     {
-      path: "/users/my/:id",
-      name: "users/my",
+      path: '/users/my/:id',
+      name: 'users/my',
       component: My,
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: Admin,
     },
   ],
 });
@@ -55,7 +61,7 @@ const router = createRouter({
 router.beforeEach((to) => {
   if (!isMatchToRoles(to.name)) {
     return {
-      name: "users/login",
+      name: 'users/login',
       query: { fromname: to.name },
     };
   }
