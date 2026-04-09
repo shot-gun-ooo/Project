@@ -1,19 +1,35 @@
 <template>
   <div class="container">
-    <h2>예산 관리</h2>
+    <div class="header">
+      <h2>예산 관리</h2>
+    </div>
 
-    <div class="card-wrapper" v-if="budgetData">
+    <div class="card-wrapper">
       <div class="card">
         <p class="label">이번 달 총 예산</p>
-        <div v-if="!isEditing">
-          <p class="value">{{ budgetData.amount.toLocaleString() }}원</p>
-          <button class="edit-btn" @click="startEdit">예산 설정</button>
+
+        <div v-if="!isEditing" class="content-view">
+          <p class="value">
+            {{ budgetData ? budgetData.amount.toLocaleString() : 0 }}원
+          </p>
+          <button class="edit-btn blue" @click="startEdit">
+            {{ budgetData ? '예산 설정' : '예산 등록하기' }}
+          </button>
         </div>
-        <div v-else>
-          <input type="number" v-model="newAmount" class="edit-input" />
+
+        <div v-else class="content-edit">
+          <input
+            type="number"
+            v-model="newAmount"
+            class="edit-input"
+            placeholder="금액을 입력하세요"
+            ref="amountInput"
+          />
           <div class="btn-group">
-            <button @click="saveBudget(budgetData.id)">저장</button>
-            <button @click="cancelEdit">취소</button>
+            <button class="action-btn save" @click="saveBudget(budgetData?.id)">
+              저장
+            </button>
+            <button class="action-btn cancel" @click="cancelEdit">취소</button>
           </div>
         </div>
       </div>
@@ -25,34 +41,50 @@
 
       <div class="card highlight">
         <p class="label">오늘의 권장 소비</p>
-        <p class="msg">
+        <p class="msg" v-if="remainingBudget > 0">
           오늘은
           <span class="highlight-red"
             >{{ dailyRecommended.toLocaleString() }}원</span
           >
           이하로 쓰세요!
         </p>
+        <p class="msg" v-else>남은 예산이 없습니다. <br />절약이 필요해요!</p>
       </div>
     </div>
+
     <div class="report-card" v-if="!loading">
       <p class="report-title">전월 대비 지출 현황</p>
+
       <div class="chart-container">
         <div class="bar-group">
-          <span class="bar-label">지난달 총 지출</span>
-          <span class="bar-value"
-            >{{ lastMonthExpense.toLocaleString() }}원</span
-          >
+          <div class="bar-text-group">
+            <span class="bar-label">지난달 총 지출</span>
+            <span class="bar-value"
+              >{{ lastMonthExpense.toLocaleString() }}원</span
+            >
+          </div>
           <div class="bar gray"></div>
         </div>
+
         <div class="bar-group">
-          <span class="bar-label">이번 달 총 지출</span>
-          <span class="bar-value">{{ totalExpense.toLocaleString() }}원</span>
+          <div class="bar-text-group">
+            <span class="bar-label">이번 달 총 지출</span>
+            <span class="bar-value blue"
+              >{{ totalExpense.toLocaleString() }}원</span
+            >
+          </div>
           <div
             class="bar blue"
-            :style="{ height: (totalExpense / lastMonthExpense) * 150 + 'px' }"
+            :style="{
+              height:
+                lastMonthExpense > 0
+                  ? (totalExpense / lastMonthExpense) * 150 + 'px'
+                  : '0px',
+            }"
           ></div>
         </div>
       </div>
+
       <div class="report-footer">
         지난달 대비 현재
         <span class="highlight-red">{{ savingRate }}%</span> 절약하고 있어요!!
@@ -61,85 +93,38 @@
   </div>
 </template>
 
+
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { budgetApi, transactionApi } from '../../api';
+import { getUserInfo } from '../../utils/authutil';
 
 const budgetData = ref(null);
 const transactions = ref([]);
 const loading = ref(false);
-const lastMonthExpense = ref(850000);
-
 const isEditing = ref(false);
 const newAmount = ref(0);
+const lastMonthTrans = ref([]);
 
-const startEdit = () => {
-  newAmount.value = budgetData.value.amount;
-
-  isEditing.value = true;
-
-  console.log('수정 모드 시작!');
-};
-
-const cancelEdit = () => {
-  isEditing.value = false;
-  newAmount.value = 0;
-};
-
-const saveBudget = async (budgetId) => {
-  try {
-    const budgetPayload = {
-      userId: '1',
-      amount: Number(newAmount.value),
-      date: new Date().toISOString().split('T')[0],
-      period: 'current',
-      category: '전체',
-    };
-
-    if (budgetData.value && budgetData.value.id) {
-      const updateData = {
-        ...budgetData.value,
-        amount: Number(newAmount.value),
-      };
-      await budgetApi.updateBudget(budgetId, updateData);
-      alert('예산이 수정되었습니다.');
-    } else {
-      await budgetApi.createBudget(budgetPayload);
-      alert('예산이 신규 등록되었습니다.');
-    }
-
-    isEditing.value = false;
-    await loadAllData();
-  } catch (error) {
-    console.error('저장/수정 실패:', error);
-    alert('작업 중 오류가 발생했습니다.');
-  }
-};
-
-//나중에 합치면 날짜 적용
-// const loadAllData = async () => {
-//   try {
-//     loading.value = true;
-//     const budgetRes = await budgetApi.getBudget('1');
-//     budgetData.value = budgetRes.data[0];
-
-//     const transRes = await transactionApi.getExpenses('1');
-//     transactions.value = transRes.data;
-//   } catch (error) {
-//     console.error('데이터 로드 실패:', error);
-//   } finally {
-//     loading.value = false;
-//   }
-// };
+const userInfo = getUserInfo();
+const userid = userInfo ? String(userInfo.id) : '2';
 
 const loadAllData = async () => {
   try {
     loading.value = true;
-    const budgetRes = await budgetApi.getBudget('1');
-    budgetData.value = budgetRes.data[0];
 
-    const transRes = await transactionApi.getExpenses('1');
-    transactions.value = transRes.data;
+    const budgetRes = await budgetApi.getBudget(userid);
+    const myBudgets = budgetRes.data.filter((b) => String(b.userid) === userid);
+    budgetData.value =
+      myBudgets.length > 0 ? myBudgets[myBudgets.length - 1] : null;
+
+   
+    const transRes = await transactionApi.getExpenses(userid);
+    transactions.value = transRes.data.filter(
+      (t) => String(t.userid) === userid && t.type === 'expense',
+    );
+
+    console.log('필터링된 지출 내역:', transactions.value);
   } catch (error) {
     console.error('데이터 로드 실패:', error);
   } finally {
@@ -147,26 +132,36 @@ const loadAllData = async () => {
   }
 };
 
-const dailyRecommended = computed(() => {
-  if (!budgetData.value) return 0;
 
-  const now = new Date(); // 오늘 날짜
-
-  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-
-  const remainingDays = lastDay - now.getDate() + 1;
-
-  const result = Math.floor(remainingBudget.value / remainingDays);
-
-  return result > 0 ? result : 0;
-});
 
 const totalExpense = computed(() => {
-  return transactions.value.reduce((sum, item) => sum + item.amount, 0);
+  return transactions.value.reduce(
+    (sum, item) => sum + (Number(item.amount) || 0),
+    0,
+  );
 });
 
+const lastMonthExpense = computed(() => {
+  if (lastMonthTrans.value.length === 0) return 850000;
+  return lastMonthTrans.value.reduce(
+    (sum, item) => sum + (Number(item.amount) || 0),
+    0,
+  );
+});
+
+
 const remainingBudget = computed(() => {
-  return budgetData.value ? budgetData.value.amount - totalExpense.value : 0;
+  const budget = budgetData.value ? Number(budgetData.value.amount) : 0;
+  return budget - totalExpense.value;
+});
+
+const dailyRecommended = computed(() => {
+  if (!budgetData.value || remainingBudget.value <= 0) return 0;
+  const now = new Date();
+  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const remainingDays = lastDay - now.getDate() + 1;
+  const result = Math.floor(remainingBudget.value / remainingDays);
+  return result > 0 ? result : 0;
 });
 
 const savingRate = computed(() => {
@@ -176,6 +171,42 @@ const savingRate = computed(() => {
     100;
   return Math.floor(rate);
 });
+
+const startEdit = () => {
+  newAmount.value = budgetData.value ? budgetData.value.amount : 0;
+  isEditing.value = true;
+};
+
+const cancelEdit = () => {
+  isEditing.value = false;
+};
+
+const saveBudget = async (budgetId) => {
+  try {
+    const budgetPayload = {
+      userid: userid, 
+      amount: Number(newAmount.value),
+      date: new Date().toISOString().split('T')[0],
+      period: 'current',
+      category: '전체',
+    };
+
+    if (budgetData.value && budgetData.value.id) {
+     
+      await budgetApi.updateBudget(budgetData.value.id, budgetPayload);
+      alert('예산이 수정되었습니다.');
+    } else {
+      await budgetApi.createBudget(budgetPayload);
+      alert('예산이 신규 등록되었습니다.');
+    }
+
+    isEditing.value = false;
+    await loadAllData();
+  } catch (error) {
+    console.error('저장 실패:', error);
+    alert('작업 중 오류가 발생했습니다.');
+  }
+};
 
 onMounted(() => {
   loadAllData();
