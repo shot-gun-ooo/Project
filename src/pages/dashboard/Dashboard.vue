@@ -1,27 +1,65 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { api } from "@/api/index.js";
+import axios from "axios";
+import { getUserInfo } from "@/utils/authutil";
 
 const transactions = ref([]);
 const latestTransactions = ref([]);
 const budgetAmount = ref(0);
+const wishlists = ref([]);
+const selectedWishlist = ref(null);
 
-// [데이터 로드] db.json 연동
+// 2026년 최저 시급 (사용자 설정 기준)
+const HOURLY_WAGE = 10320;
+
+const currentMonthStr = computed(() => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+});
+
 const fetchData = async () => {
+  const userInfo = getUserInfo();
+  if (!userInfo || !userInfo.id) return;
+
+  const currentId = String(userInfo.id);
+
   try {
-    const [resTrans, resBudget] = await Promise.all([
-      api.getTransactions(),
-      api.getBudgets(),
+    const timestamp = new Date().getTime();
+    const [resTrans, resBudget, resWish] = await Promise.all([
+      axios.get("/api/transactions", {
+        params: { userid: currentId, _t: timestamp },
+      }),
+      axios.get("/api/budgets", {
+        params: { userid: currentId, _t: timestamp },
+      }),
+      axios.get("/api/wishlists", {
+        params: { userid: currentId, _t: timestamp },
+      }),
     ]);
 
-    transactions.value = resTrans.data;
+    transactions.value = resTrans.data || [];
 
-    if (resBudget.data.length > 0) {
-      budgetAmount.value = resBudget.data[0].amount;
+    const budgets = resBudget.data || [];
+    if (budgets.length > 0) {
+      const monthlyBudget = budgets.find((b) =>
+        String(b.date).startsWith(currentMonthStr.value),
+      );
+      budgetAmount.value = monthlyBudget
+        ? Number(monthlyBudget.amount)
+        : Number(budgets[0].amount);
     }
 
-    // [최근 소비 목록] 날짜 내림차순 정렬 후 상위 5건 추출
-    latestTransactions.value = [...resTrans.data]
+    // 진행 중인 위시리스트 중 랜덤으로 1개 선택
+    const activeWishes = (resWish.data || []).filter(
+      (w) => w.status !== "completed",
+    );
+    if (activeWishes.length > 0) {
+      const randomIndex = Math.floor(Math.random() * activeWishes.length);
+      selectedWishlist.value = activeWishes[randomIndex];
+    }
+
+    latestTransactions.value = transactions.value
+      .filter((t) => String(t.type).trim() === "expense")
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 5);
   } catch (error) {
@@ -29,17 +67,64 @@ const fetchData = async () => {
   }
 };
 
-// [계산 로직]
+const workHoursSpent = computed(() => {
+  if (expenseTotal.value === 0) return 0;
+  return (expenseTotal.value / HOURLY_WAGE).toFixed(1);
+});
+
+const wishlistAnalysis = computed(() => {
+  if (!selectedWishlist.value) return null;
+
+  const item = selectedWishlist.value;
+  const budgetGap = budgetAmount.value - expenseTotal.value;
+
+  // 예산 잔액을 시급(8시간 근무) 기준으로 환산하여 구매 가능일수 계산
+  const impactDays = Math.abs(Math.floor(budgetGap / (HOURLY_WAGE * 8)));
+
+  return {
+    itemName: item.itemName,
+    isGood: budgetGap >= 0,
+    days: impactDays > 0 ? impactDays : 1,
+  };
+});
+
+const monthlyStats = computed(() => {
+  const months = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const monthLabel = `${d.getMonth() + 1}월`;
+    const total = transactions.value
+      .filter(
+        (t) =>
+          String(t.type).trim() === "expense" &&
+          String(t.date).startsWith(monthStr),
+      )
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    months.push({ label: monthLabel, total });
+  }
+  return months;
+});
+
 const incomeTotal = computed(() => {
   return transactions.value
-    .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + Number(t.amount), 0);
+    .filter(
+      (t) =>
+        String(t.type).trim() === "income" &&
+        String(t.date).startsWith(currentMonthStr.value),
+    )
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 });
 
 const expenseTotal = computed(() => {
   return transactions.value
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + Number(t.amount), 0);
+    .filter(
+      (t) =>
+        String(t.type).trim() === "expense" &&
+        String(t.date).startsWith(currentMonthStr.value),
+    )
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 });
 
 const netProfit = computed(() => incomeTotal.value - expenseTotal.value);
@@ -55,37 +140,38 @@ onMounted(fetchData);
 <template>
   <div class="dash-grid">
     <section class="dash-main">
+      <div class="kb-card reality-check-banner">
+        <div class="icon">⏰</div>
+        <div class="content">
+          <h4>현타 계산기</h4>
+          <p>
+            이번 달 지출을 위해 당신은
+            <span class="highlight">{{ workHoursSpent }}시간</span> 동안
+            일했습니다.
+          </p>
+        </div>
+      </div>
+
       <div class="kb-card chart-box">
         <div class="chart-header">
           <h3>지출 월별 요약</h3>
+          <span class="sub-text">최근 6개월 지출 추이</span>
         </div>
         <div class="area-chart-container">
           <div class="grid-lines">
             <div v-for="n in 4" :key="n" class="grid-line"></div>
           </div>
-          <svg viewBox="0 0 600 200" class="chart-svg">
-            <defs>
-              <linearGradient id="chart-gradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="rgba(255, 126, 126, 0.4)" />
-                <stop offset="100%" stop-color="rgba(255, 126, 126, 0)" />
-              </linearGradient>
-            </defs>
-            <path
-              d="M0,180 C100,160 200,170 300,90 C400,60 500,110 600,70 L600,200 L0,200 Z"
-              fill="url(#chart-gradient)"
-            />
-            <path
-              d="M0,180 C100,160 200,170 300,90 C400,60 500,110 600,70"
-              fill="none"
-              stroke="#ff7e7e"
-              stroke-width="4"
-              stroke-linecap="round"
-            />
-            <circle cx="300" cy="90" r="6" fill="#ff7e7e" />
-          </svg>
           <div class="month-labels">
-            <span>1월</span><span>2월</span><span>3월</span><span>4월</span
-            ><span>5월</span><span>6월</span>
+            <div v-for="m in monthlyStats" :key="m.label" class="month-item">
+              <div class="bar-container">
+                <div
+                  class="stat-bar"
+                  :style="{ height: Math.min(m.total / 10000, 100) + 'px' }"
+                ></div>
+              </div>
+              <span class="m-label">{{ m.label }}</span>
+              <span class="m-total">{{ (m.total / 10000).toFixed(0) }}만</span>
+            </div>
           </div>
         </div>
       </div>
@@ -109,12 +195,12 @@ onMounted(fetchData);
                 </td>
                 <td>{{ t.date }}</td>
                 <td>{{ t.memo }}</td>
-                <td :class="t.type">
-                  {{ Number(t.amount).toLocaleString() }}원
+                <td class="expense">
+                  -{{ Number(t.amount).toLocaleString() }}원
                 </td>
               </tr>
               <tr v-if="latestTransactions.length === 0">
-                <td colspan="4" class="no-data">거래 내역이 없습니다.</td>
+                <td colspan="4" class="no-data">지출 내역이 없습니다.</td>
               </tr>
             </tbody>
           </table>
@@ -146,9 +232,26 @@ onMounted(fetchData);
             :style="{ width: Math.min(budgetUsageRate, 100) + '%' }"
           ></div>
         </div>
-        <p>
-          목표 대비 <strong>{{ budgetUsageRate }}%</strong> 사용 중
+        <p class="usage-text">
+          총 {{ budgetAmount.toLocaleString() }}원 중
+          <strong>{{ budgetUsageRate }}%</strong> 사용 중
         </p>
+
+        <div class="wishlist-motivation" v-if="wishlistAnalysis">
+          <div class="divider"></div>
+          <p v-if="wishlistAnalysis.isGood" class="msg-box good">
+            🚀 지금처럼 아끼면
+            <strong>{{ wishlistAnalysis.itemName }}</strong> 구매가
+            <span class="blue-text">{{ wishlistAnalysis.days }}일</span>
+            빨라집니다!
+          </p>
+          <p v-else class="msg-box bad">
+            ⚠️ 예산 초과로
+            <strong>{{ wishlistAnalysis.itemName }}</strong> 구매가
+            <span class="red-text">{{ wishlistAnalysis.days }}일</span> 늦어지고
+            있어요.
+          </p>
+        </div>
       </div>
     </section>
   </div>
@@ -173,6 +276,62 @@ onMounted(fetchData);
   gap: 20px;
 }
 
+/* 현타 계산기 배너 */
+.reality-check-banner {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #eee;
+}
+.reality-check-banner h4 {
+  margin: 0;
+  font-size: 14px;
+  color: #888;
+}
+.reality-check-banner p {
+  margin: 5px 0 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+.highlight {
+  color: #ff5e5e;
+  text-decoration: underline;
+}
+
+/* 위시리스트 동기부여 (사이드바 내부) */
+.wishlist-motivation {
+  margin-top: 15px;
+}
+.divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin: 15px 0;
+}
+.msg-box {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #555;
+  padding: 10px;
+  border-radius: 12px;
+}
+.msg-box.good {
+  background: #f0f7ff;
+}
+.msg-box.bad {
+  background: #fff5f5;
+}
+.blue-text {
+  color: #2b78e4;
+  font-weight: 800;
+}
+.red-text {
+  color: #e44d4d;
+  font-weight: 800;
+}
+
 .kb-card {
   background: #fff;
   border-radius: 24px;
@@ -180,42 +339,68 @@ onMounted(fetchData);
   border: 1px solid #eee;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
-
-/* 그래프 스타일 */
+.sub-text {
+  font-size: 12px;
+  color: #999;
+  margin-left: 10px;
+}
 .area-chart-container {
   position: relative;
-  height: 250px;
-  margin-top: 20px;
+  height: 200px;
+  margin-top: 30px;
 }
 .grid-lines {
   position: absolute;
   width: 100%;
-  height: 200px;
+  height: 100px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  top: 0;
 }
 .grid-line {
   border-top: 1px dashed #f0f0f0;
   width: 100%;
   height: 1px;
 }
-.chart-svg {
-  width: 100%;
-  height: 200px;
+.month-labels {
   position: relative;
   z-index: 2;
-}
-.month-labels {
   display: flex;
   justify-content: space-between;
-  margin-top: 15px;
   padding: 0 10px;
-  font-size: 13px;
-  color: #999;
 }
-
-/* 테이블 스타일 */
+.month-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.bar-container {
+  height: 100px;
+  display: flex;
+  align-items: flex-end;
+  background: #f5f5f5;
+  width: 35px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.stat-bar {
+  width: 100%;
+  background: #ff7e7e;
+  border-radius: 4px;
+  transition: height 0.5s ease;
+}
+.m-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+}
+.m-total {
+  font-size: 11px;
+  color: #e44d4d;
+  font-weight: 600;
+}
 table {
   width: 100%;
   border-collapse: collapse;
@@ -233,10 +418,6 @@ td {
   font-size: 14px;
   border-bottom: 1px solid #fafafa;
 }
-.income {
-  color: #2b78e4;
-  font-weight: bold;
-}
 .expense {
   color: #e44d4d;
   font-weight: bold;
@@ -253,8 +434,6 @@ td {
   padding: 40px !important;
   color: #ccc;
 }
-
-/* 우측 카드 디자인 */
 .summary-area {
   display: flex;
   flex-direction: column;
@@ -281,12 +460,11 @@ td {
   color: #333;
   border: none;
 }
-
 .usage-bar-bg {
   width: 100%;
   height: 12px;
   background: #eee;
-  border-radius: 6px;
+  border-radius: 66px;
   margin: 20px 0 10px;
   overflow: hidden;
 }
@@ -294,5 +472,9 @@ td {
   height: 100%;
   background: #2b78e4;
   transition: width 0.6s ease;
+}
+.usage-text {
+  font-size: 14px;
+  color: #666;
 }
 </style>

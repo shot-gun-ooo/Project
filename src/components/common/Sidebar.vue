@@ -26,12 +26,12 @@
       <button @click="openModal('expense')" class="kb-btn kb-expense">
         ➖ 지출 추가
       </button>
-      <!-- 로그아웃 버튼이 로그인되어 있을 때만 보이도록 함. -->
       <button v-if="isLoggedIn" class="kb-btn kb-logout" @click="handleLogout">
         🔓 로그아웃
       </button>
     </div>
 
+    <!-- 수입/지출 입력 모달 -->
     <div
       v-if="isModalOpen"
       class="modal-overlay"
@@ -46,14 +46,35 @@
             <label>날짜</label>
             <input type="date" v-model="formData.date" />
           </div>
+          
           <div class="form-item">
             <label>카테고리</label>
-            <input
-              type="text"
-              v-model="formData.category"
-              placeholder="식비, 월급 등"
-            />
+            <!-- 사용자가 요청한 드롭다운 방식 적용 -->
+            <select v-model="formData.category" class="kb-select">
+              <option value="">분류 선택</option>
+              
+              <optgroup v-if="modalType === 'income'" label="수입">
+                <option
+                  v-for="name in incomeCategories"
+                  :key="`income-${name}`"
+                  :value="name"
+                >
+                  {{ name }}
+                </option>
+              </optgroup>
+
+              <optgroup v-if="modalType === 'expense'" label="지출">
+                <option
+                  v-for="name in expenseCategories"
+                  :key="`expense-${name}`"
+                  :value="name"
+                >
+                  {{ name }}
+                </option>
+              </optgroup>
+            </select>
           </div>
+
           <div class="form-item">
             <label>금액 (원)</label>
             <input type="number" v-model="formData.amount" placeholder="0" />
@@ -82,51 +103,57 @@ import axios from "axios";
 import { useRouter } from "vue-router";
 import { getUserInfo, logoutProcess } from "../../utils/authutil";
 
-// -----------------------------------------------------------------------------------
 const router = useRouter();
-
-// 로그인 상태를 저장할 변수
-// 처음에는 로그인이 되어있지 않아서 false로 설정
 const isLoggedIn = ref(false);
 
-// 로그인 상태 체크 함수
-const checkLoginStatus = () => {
-  const usreInfo = getUserInfo();
-  isLoggedIn.value = usreInfo.authenticated;
-};
+// 카테고리 목록 저장
+const incomeCategories = ref([]);
+const expenseCategories = ref([]);
 
-// 페이지가 로드될 때 체크
-onMounted(() => {
-  checkLoginStatus();
-});
-
-// 로그아웃 함수 실행 시
-const handleLogout = () => {
-  if (confirm("로그아웃 하시겠습니까?")) {
-    logoutProcess(() => {
-      isLoggedIn.value = false;
-      router.push({ name: "dashboard" });
-      window.location.href = "/";
-    });
-  }
-};
-
-// ----------------------------------------------------------------------------
-
-// 1. 모달 제어 상태
+// 모달 및 폼 데이터 상태
 const isModalOpen = ref(false);
-const modalType = ref("income"); // 'income' 또는 'expense'
-
-// 2. 입력 데이터 바인딩 (v-model)
+const modalType = ref("income");
 const formData = ref({
-  date: new Date().toISOString().split("T")[0], // 오늘 날짜 기본값
+  date: new Date().toISOString().split("T")[0],
   category: "",
   amount: 0,
   memo: "",
   type: "",
 });
 
-// 모달 열기 함수
+// 카테고리 데이터 가져오기
+const fetchCategories = async () => {
+  try {
+    const [resIncome, resExpense] = await Promise.all([
+      axios.get("/api/incomeCategory"),
+      axios.get("/api/expenseCategory")
+    ]);
+    incomeCategories.value = resIncome.data;
+    expenseCategories.value = resExpense.data;
+  } catch (error) {
+    console.error("카테고리 로드 실패:", error);
+  }
+};
+
+const checkLoginStatus = () => {
+  const userInfo = getUserInfo();
+  isLoggedIn.value = userInfo.authenticated;
+};
+
+onMounted(() => {
+  checkLoginStatus();
+  fetchCategories(); // 카테고리 로드 실행
+});
+
+const handleLogout = () => {
+  if (confirm("로그아웃 하시겠습니까?")) {
+    logoutProcess(() => {
+      isLoggedIn.value = false;
+      window.location.href = "/";
+    });
+  }
+};
+
 const openModal = (type) => {
   modalType.value = type;
   formData.value = {
@@ -134,24 +161,32 @@ const openModal = (type) => {
     category: "",
     amount: 0,
     memo: "",
-    type: type,
+    type: type, // income 또는 expense
   };
   isModalOpen.value = true;
 };
 
-// 3. 서버에 데이터 전송 (API 명세서 POST /transactions 반영)
 const submitData = async () => {
   if (!formData.value.category || formData.value.amount <= 0) {
     alert("카테고리와 금액을 정확히 입력해주세요.");
     return;
   }
 
+  const userInfo = getUserInfo();
+  if (!userInfo || !userInfo.id) {
+    alert("로그인 정보가 없습니다.");
+    return;
+  }
+
   try {
-    await axios.post("http://localhost:3000/transactions", formData.value);
+    const postData = {
+      ...formData.value,
+      userid: String(userInfo.id),
+    };
+
+    await axios.post("/api/transactions", postData);
     alert("정상적으로 등록되었습니다.");
     isModalOpen.value = false;
-
-    // 페이지 새로고침하여 대시보드 데이터 갱신
     window.location.reload();
   } catch (error) {
     console.error("데이터 등록 실패:", error);
@@ -161,7 +196,7 @@ const submitData = async () => {
 </script>
 
 <style scoped>
-/* 사이드바 기본 스타일 (사용자 시안 반영) */
+/* 기존 스타일 유지 및 select 스타일 추가 */
 .kb-sidebar {
   width: 260px;
   height: 100vh;
@@ -174,158 +209,37 @@ const submitData = async () => {
   top: 0;
   border-right: 1px solid #eee;
   z-index: 1000;
-  transition: width 0.3s;
 }
-.logo-area {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 40px;
-  color: #333;
-}
-.kb-nav {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.kb-nav-item {
-  display: flex;
-  align-items: center;
-  padding: 14px 18px;
-  text-decoration: none;
-  color: #666;
-  border-radius: 12px;
-  transition: 0.2s;
-}
-.kb-nav-item.router-link-active {
-  background: #e3f2fd;
-  color: #2962ff;
-  font-weight: bold;
-}
-.icon {
-  margin-right: 14px;
-  font-size: 18px;
-}
+.logo-area { font-size: 24px; font-weight: bold; margin-bottom: 40px; color: #333; }
+.kb-nav { flex-grow: 1; display: flex; flex-direction: column; gap: 8px; }
+.kb-nav-item { display: flex; align-items: center; padding: 14px 18px; text-decoration: none; color: #666; border-radius: 12px; }
+.kb-nav-item.router-link-active { background: #e3f2fd; color: #2962ff; font-weight: bold; }
+.icon { margin-right: 14px; font-size: 18px; }
 
-.kb-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: auto;
-}
-.kb-btn {
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 14px;
-}
-.kb-income {
-  background: #e3f2fd;
-  color: #2962ff;
-}
-.kb-expense {
-  background: #ffebee;
-  color: #d50000;
-}
-.kb-logout {
-  background: #fff;
-  border: 1px solid #ccc;
-  margin-top: 5px;
-}
+.kb-actions { display: flex; flex-direction: column; gap: 10px; margin-top: auto; }
+.kb-btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; }
+.kb-income { background: #e3f2fd; color: #2962ff; }
+.kb-expense { background: #ffebee; color: #d50000; }
+.kb-logout { background: #fff; border: 1px solid #ccc; margin-top: 5px; }
 
-/* 모달 스타일 (CSS 이론: 레이어 배치) */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-.modal-content {
-  background: white;
-  padding: 30px;
-  border-radius: 20px;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-}
-.form-container {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin: 20px 0;
-}
-.form-item {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.form-item label {
-  font-size: 13px;
-  color: #888;
-}
-.form-item input {
-  padding: 12px;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  outline: none;
-}
-.form-item input:focus {
-  border-color: #2962ff;
-}
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+.modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; }
+.form-container { display: flex; flex-direction: column; gap: 15px; margin: 20px 0; }
+.form-item { display: flex; flex-direction: column; gap: 5px; }
+.form-item label { font-size: 13px; color: #888; }
+.form-item input, .kb-select { padding: 12px; border: 1px solid #eee; border-radius: 10px; outline: none; background: white; }
+.kb-select:focus, .form-item input:focus { border-color: #2962ff; }
 
-.modal-footer {
-  display: flex;
-  gap: 10px;
-}
-.btn-save {
-  flex: 2;
-  background: #2962ff;
-  color: white;
-  border: none;
-  padding: 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: bold;
-}
-.btn-cancel {
-  flex: 1;
-  background: #f5f5f5;
-  color: #666;
-  border: none;
-  padding: 14px;
-  border-radius: 10px;
-  cursor: pointer;
-}
+.modal-footer { display: flex; gap: 10px; }
+.btn-save { flex: 2; background: #2962ff; color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+.btn-cancel { flex: 1; background: #f5f5f5; color: #666; border: none; padding: 14px; border-radius: 10px; cursor: pointer; }
 
-/* 텍스트 컬러 강조 */
-.income {
-  color: #2962ff;
-}
-.expense {
-  color: #d50000;
-}
+.income { color: #2962ff; }
+.expense { color: #d50000; }
 
-/* 웹 반응형 */
 @media (max-width: 1100px) {
-  .kb-sidebar {
-    width: 85px;
-    padding: 20px 10px;
-  }
-  .logo-text,
-  .txt,
-  .kb-btn {
-    display: none;
-  }
-  .kb-nav-item {
-    justify-content: center;
-  }
+  .kb-sidebar { width: 85px; padding: 20px 10px; }
+  .logo-text, .txt, .kb-btn { display: none; }
+  .kb-nav-item { justify-content: center; }
 }
 </style>
