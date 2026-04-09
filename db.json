@@ -93,24 +93,112 @@
       "memo": "4월 정기 급여"
     },
     {
-      "id": "3",
-      "userid": "2",
-      "date": "2026-04-09",
+      "userid": "1",
+      "date": "2026-04-05",
       "type": "expense",
       "category": "식비",
-      "detailCategory": "외식",
       "amount": 50000,
-      "memo": "김철수 첫 지출 테스트"
+      "memo": "마트 장보기",
+      "id": "t1"
     },
     {
-      "id": "4",
-      "userid": "2",
-      "date": "2026-04-09",
+      "userid": "1",
+      "date": "2026-04-01",
+      "type": "expense",
+      "category": "주거",
+      "amount": 400000,
+      "memo": "월세 납부",
+      "id": "t6"
+    },
+    {
+      "userid": "1",
+      "date": "2026-04-08",
       "type": "expense",
       "category": "쇼핑",
-      "detailCategory": "의류",
+      "amount": 75000,
+      "memo": "봄맞이 신발",
+      "id": "t7"
+    },
+    {
+      "userid": "1",
+      "date": "2026-03-15",
+      "type": "expense",
+      "category": "쇼핑",
       "amount": 150000,
-      "memo": "옷 샀다!"
+      "memo": "봄 옷 구매",
+      "id": "t2"
+    },
+    {
+      "userid": "1",
+      "date": "2026-03-05",
+      "type": "expense",
+      "category": "공과금",
+      "amount": 200000,
+      "memo": "전기/수도 요금",
+      "id": "t8"
+    },
+    {
+      "userid": "1",
+      "date": "2026-03-20",
+      "type": "expense",
+      "category": "식비",
+      "amount": 25000,
+      "memo": "친구와 저녁",
+      "id": "t3"
+    },
+    {
+      "userid": "1",
+      "date": "2026-02-10",
+      "type": "expense",
+      "category": "교통비",
+      "amount": 60000,
+      "memo": "교통카드 충전",
+      "id": "t4"
+    },
+    {
+      "userid": "1",
+      "date": "2026-02-25",
+      "type": "expense",
+      "category": "주거",
+      "amount": 450000,
+      "memo": "월세 납부",
+      "id": "t5"
+    },
+    {
+      "userid": "1",
+      "date": "2026-02-15",
+      "type": "expense",
+      "category": "유흥",
+      "amount": 100000,
+      "memo": "주말 모임",
+      "id": "t9"
+    },
+    {
+      "userid": "1",
+      "date": "2026-01-05",
+      "type": "expense",
+      "category": "식비",
+      "amount": 80000,
+      "memo": "신년 장보기",
+      "id": "t10"
+    },
+    {
+      "userid": "1",
+      "date": "2026-01-15",
+      "type": "expense",
+      "category": "교통비",
+      "amount": 120000,
+      "memo": "KTX 기차표",
+      "id": "t11"
+    },
+    {
+      "userid": "1",
+      "date": "2026-01-25",
+      "type": "expense",
+      "category": "쇼핑",
+      "amount": 300000,
+      "memo": "겨울 코트 세일",
+      "id": "t12"
     }
   ],
   "budgets": [
@@ -118,7 +206,7 @@
       "id": "1",
       "userid": "1",
       "date": "2026-04-07",
-      "amount": 12000,
+      "amount": 1000000,
       "period": "current",
       "category": "전체"
     },
@@ -229,7 +317,7 @@
       "userid": "1",
       "date": "2026-04-25",
       "type": "expense",
-      "category": "통신비",
+      "category": "공과금",
       "amount": 55000,
       "memo": "핸드폰 요금 자동이체"
     },
@@ -251,7 +339,7 @@
       "targetPrice": 3500000,
       "savedAmount": 1200000,
       "targetDate": "2026-12-31",
-      "status": "completed"
+      "status": "proceeding"
     }
     
   ],
