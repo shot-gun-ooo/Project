@@ -21,15 +21,44 @@
       "password": "34567"
     },
     {
-      "id": 3,
-      "userid": "admin",
-      "name": "관리자",
-      "email": "admin@kb.com",
-      "password": "1234",
+      "userid": "user3",
+      "name": "김은수",
+      "email": "kim@kb.com",
+      "password": "34567",
       "roles": [
-        "users",
-        "admins"
-      ]
+        "users"
+      ],
+      "id": "uWme0ep"
+    },
+    {
+      "name": "ccc",
+      "userid": "ccc",
+      "email": "ccc",
+      "password": "lkllll",
+      "roles": [
+        "users"
+      ],
+      "id": "KK1bWpC"
+    },
+    {
+      "name": "ggg",
+      "userid": "ggg",
+      "email": "ggg",
+      "password": "ggg",
+      "roles": [
+        "users"
+      ],
+      "id": "QyeC3fE"
+    },
+    {
+      "name": "qqq",
+      "userid": "qqq",
+      "email": "qqq",
+      "password": "qqq",
+      "roles": [
+        "users"
+      ],
+      "id": "4lY1c97"
     }
   ],
   "transactions": [
@@ -55,7 +84,7 @@
     },
     {
       "id": "2",
-      "userid": "1",
+      "userid": "2",
       "date": "2026-04-07",
       "type": "income",
       "category": "월급",
@@ -64,44 +93,24 @@
       "memo": "4월 정기 급여"
     },
     {
+      "id": "3",
       "userid": "2",
-      "date": "2026-04-01",
+      "date": "2026-04-09",
       "type": "expense",
-      "category": "유흥",
-      "detailCategory": "",
-      "amount": 40000,
-      "memo": "위스키",
-      "id": "UgAK3eY"
+      "category": "식비",
+      "detailCategory": "외식",
+      "amount": 50000,
+      "memo": "김철수 첫 지출 테스트"
     },
     {
+      "id": "4",
       "userid": "2",
-      "date": "2026-04-01",
+      "date": "2026-04-09",
       "type": "expense",
-      "category": "고정 지출",
-      "detailCategory": "",
-      "amount": 10000,
-      "memo": "넷플릭스",
-      "id": "aANJPPg"
-    },
-    {
-      "userid": "2",
-      "date": "2026-04-01",
-      "type": "income",
-      "category": "용돈",
-      "detailCategory": "",
-      "amount": 100000,
-      "memo": "용돈",
-      "id": "g06nSOO"
-    },
-    {
-      "userid": "2",
-      "date": "2026-04-01",
-      "type": "income",
-      "category": "부업",
-      "detailCategory": "",
-      "amount": 200000,
-      "memo": "사이드",
-      "id": "Bk-1Ogx"
+      "category": "쇼핑",
+      "detailCategory": "의류",
+      "amount": 150000,
+      "memo": "옷 샀다!"
     }
   ],
   "budgets": [
@@ -112,6 +121,62 @@
       "amount": 12000,
       "period": "current",
       "category": "전체"
+    },
+    {
+      "userId": "2",
+      "amount": 100000,
+      "date": "2026-04-09",
+      "period": "current",
+      "category": "전체",
+      "id": "Tw1CRc6"
+    },
+    {
+      "userId": "2",
+      "amount": 100000,
+      "date": "2026-04-09",
+      "period": "current",
+      "category": "전체",
+      "id": "nMWCi1B"
+    },
+    {
+      "userId": "2",
+      "amount": 100000,
+      "date": "2026-04-09",
+      "period": "current",
+      "category": "전체",
+      "id": "UneYdW4"
+    },
+    {
+      "userId": "2",
+      "amount": 10000000,
+      "date": "2026-04-09",
+      "period": "current",
+      "category": "전체",
+      "id": "CwIcexk"
+    },
+    {
+      "userId": "2",
+      "amount": 100000,
+      "date": "2026-04-09",
+      "period": "current",
+      "category": "전체",
+      "id": "-XWAXj2"
+    },
+    {
+      "userId": "2",
+      "amount": 100000,
+      "date": "2026-04-09",
+      "period": "current",
+      "category": "전체",
+      "id": "sFIfxFR"
+    },
+    {
+      "userid": "2",
+      "amount": 700000,
+      "date": "2026-04-09",
+      "period": "current",
+      "category": "전체",
+      "id": "egGX0tY"
     }
   ],
   "incomeCategory": [
