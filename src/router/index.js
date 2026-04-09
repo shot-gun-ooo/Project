@@ -3,6 +3,7 @@ import { isMatchToRoles } from "../utils/authutil";
 
 import Login from "../pages/auth/Login.vue";
 import My from "../pages/auth/My.vue";
+import My from "../pages/auth/My.vue";
 import Signup from "../pages/auth/Signup.vue";
 import Budget from "../pages/budget/Budget.vue";
 import Dashboard from "../pages/dashboard/Dashboard.vue";

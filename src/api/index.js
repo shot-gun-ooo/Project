@@ -6,10 +6,16 @@ const http = axios.create({
 });
 
 export const api = {
-  getTransactions: (params) => {
-    return http.get("/transactions", { params });
-  },
-  getBudgets: (params) => {
-    return http.get("/budgets", { params });
-  },
+  getTransactions: (params) => http.get("/transactions", { params }),
+  getBudgets: (params) => http.get("/budgets", { params }),
+};
+
+export const budgetApi = {
+  getBudget: (userId) => api.getBudgets({ userId, period: "current" }),
+  createBudget: (data) => http.post("/budgets", data),
+  updateBudget: (id, data) => http.patch(`/budgets/${id}`, data),
+};
+
+export const transactionApi = {
+  getExpenses: (userId) => api.getTransactions({ userId, type: "expense" }),
 };
