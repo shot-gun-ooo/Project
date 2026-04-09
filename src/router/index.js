@@ -1,61 +1,64 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory } from 'vue-router';
+import { isMatchToRoles } from '../utils/authutil';
 
-// 이미지의 폴더 구조에 맞춘 임포트 경로
-import Login from "../pages/auth/Login.vue";
-import My from "../pages/auth/My.vue"; // 이미지상 auth 폴더 안에 있음
-import Signup from "../pages/auth/Signup.vue";
-import Budget from "../pages/budget/Budget.vue";
-import Dashboard from "../pages/dashboard/Dashboard.vue";
-import Transaction from "../pages/transaction/Transaction.vue";
-import TransDetail from "../pages/transaction/TransDetail.vue";
-import Wishlist from "../pages/Wishlist/Wishlist.vue"; // 이미지상 대문자 Wishlist 폴더
-
-const routes = [
-  {
-    path: "/",
-    name: "Dashboard",
-    component: Dashboard,
-  },
-  {
-    path: "/trans",
-    name: "Transaction",
-    component: Transaction,
-  },
-  {
-    path: "/trans/:id",
-    name: "TransDetail",
-    component: TransDetail,
-  },
-  {
-    path: "/budget",
-    name: "Budget",
-    component: Budget,
-  },
-  {
-    path: "/wishlist",
-    name: "Wishlist",
-    component: Wishlist,
-  },
-  {
-    path: "/users/signup",
-    name: "Signup",
-    component: Signup,
-  },
-  {
-    path: "/users/login",
-    name: "Login",
-    component: Login,
-  },
-  {
-    path: "/users/my/:id",
-    name: "My",
-    component: My,
-  },
-];
+import Login from '../pages/auth/Login.vue';
+import My from '../pages/auth/My.vue';
+import Signup from '../pages/auth/Signup.vue';
+import Budget from '../pages/budget/Budget.vue';
+import Dashboard from '../pages/dashboard/Dashboard.vue';
+import Transaction from '../pages/transaction/Transaction.vue';
+import Wishlist from '../pages/Wishlist/Wishlist.vue';
 
 const router = createRouter({
   history: createWebHistory(),
-  routes,
+  routes: [
+    {
+      path: '/',
+      name: 'dashboard',
+      component: Dashboard,
+    },
+    {
+      path: '/trans',
+      name: 'trans',
+      component: Transaction,
+    },
+    {
+      path: '/budget',
+      name: 'budget',
+      component: Budget,
+    },
+    {
+      path: '/wishlist',
+      name: 'wishlist',
+      component: Wishlist,
+    },
+    {
+      path: '/users/signup',
+      name: 'users/signup',
+      component: Signup,
+    },
+    {
+      path: '/users/login',
+      name: 'users/login',
+      component: Login,
+    },
+    {
+      path: '/users/my/:id',
+      name: 'users/my',
+      component: My,
+    },
+  ],
+});
+
+// 전역 네비게이션 가드
+// 모든 페이지 이동 전에 권한 체크
+router.beforeEach((to) => {
+  if (!isMatchToRoles(to.name)) {
+    return {
+      name: 'users/login',
+      query: { fromname: to.name },
+    };
+  }
 });
 
 export default router;

@@ -1,28 +1,54 @@
 <template>
-  <header style="padding: 20px; border-bottom: 1px solid #ccc">
-    <h1>KB 가계부 스켈레톤</h1>
-    <nav>
-      <router-link to="/">대시보드</router-link> |
-      <router-link to="/trans">거래내역</router-link> |
-      <router-link to="/budget">예산관리</router-link> |
-      <router-link to="/wishlist">위시리스트</router-link> |
-      <router-link to="/users/login">로그인</router-link>
-    </nav>
-  </header>
+  <div class="app-wrapper">
+    <Sidebar />
 
-  <main style="padding: 20px">
-    <router-view></router-view>
-  </main>
+    <div class="main-layout">
+      <Header />
+
+      <main class="page-content">
+        <router-view />
+      </main>
+    </div>
+  </div>
 </template>
 
+<script setup>
+import Sidebar from "./components/common/Sidebar.vue";
+import Header from "./components/common/Header.vue";
+</script>
+
 <style>
-nav a {
-  margin: 0 10px;
-  text-decoration: none;
-  color: #666;
+* {
+  box-sizing: border-box;
 }
-.router-link-active {
-  color: #ffcc00; /* KB 브랜드 포인트 컬러 */
-  font-weight: bold;
+body {
+  margin: 0;
+  font-family: "Pretendard", sans-serif;
+  background-color: #f8f9fa; /* 시안의 연한 회색 배경 */
+}
+.app-wrapper {
+  display: flex;
+}
+.main-layout {
+  flex-grow: 1;
+  margin-left: 260px; /* 사이드바 너비만큼 띄우기 */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s;
+}
+.page-content {
+  flex-grow: 1;
+  padding: 0 40px 40px 40px; /* 상단바 제외하고 좌우하단 여백 */
+}
+
+/* 웹 반응형 대응 */
+@media (max-width: 1100px) {
+  .main-layout {
+    margin-left: 85px;
+  }
+  .page-content {
+    padding: 0 20px 20px 20px;
+  }
 }
 </style>

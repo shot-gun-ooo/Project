@@ -1,0 +1,154 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "userid": "user01",
+      "name": "홍길동",
+      "email": "hong@kb.com",
+      "roles": [
+        "users"
+      ],
+      "password": "12345"
+    },
+    {
+      "id": "2",
+      "userid": "user02",
+      "name": "김철수",
+      "email": "kim@kb.com",
+      "roles": [
+        "users"
+      ],
+      "password": "34567"
+    },
+    {
+      "userid": "user3",
+      "name": "김은수",
+      "email": "kim@kb.com",
+      "password": "34567",
+      "roles": [
+        "users"
+      ],
+      "id": "uWme0ep"
+    },
+    {
+      "name": "ccc",
+      "userid": "ccc",
+      "email": "ccc",
+      "password": "lkllll",
+      "roles": [
+        "users"
+      ],
+      "id": "KK1bWpC"
+    },
+    {
+      "name": "ggg",
+      "userid": "ggg",
+      "email": "ggg",
+      "password": "ggg",
+      "roles": [
+        "users"
+      ],
+      "id": "QyeC3fE"
+    },
+    {
+      "name": "qqq",
+      "userid": "qqq",
+      "email": "qqq",
+      "password": "qqq",
+      "roles": [
+        "users"
+      ],
+      "id": "4lY1c97"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "1",
+      "userid": "1",
+      "date": "2026-04-07",
+      "type": "expense",
+      "category": "식비",
+      "detailCategory": "외식",
+      "amount": 12000,
+      "memo": "점심 식사"
+    },
+    {
+      "id": "2",
+      "userid": "1",
+      "date": "2026-04-07",
+      "type": "income",
+      "category": "월급",
+      "detailCategory": "본업",
+      "amount": 3000000,
+      "memo": "4월 정기 급여"
+    }
+  ],
+  "budget": [
+    {
+      "id": "1",
+      "userid": "1",
+      "date": "2026-04-07",
+      "amount": 12000,
+      "period": "current",
+      "category": "전체"
+    }
+  ],
+  "incomeCategory": [
+    "월급",
+    "용돈",
+    "이자",
+    "부업",
+    "기타"
+  ],
+  "expenseCategory": [
+    "식비",
+    "교통비",
+    "유흥",
+    "공과금",
+    "의료",
+    "주거",
+    "쇼핑",
+    "저축"
+  ],
+  "periodicExpense": [
+    {
+      "id": "1",
+      "userid": "1",
+      "date": "2026-04-25",
+      "type": "expense",
+      "category": "통신비",
+      "amount": 55000,
+      "memo": "핸드폰 요금 자동이체"
+    }
+  ],
+  "wishlists": [
+    {
+      "id": "1",
+      "userid": "1",
+      "itemName": "맥북 프로",
+      "targetPrice": 3500000,
+      "savedAmount": 1200000,
+      "targetDate": "2026-12-31",
+      "status": "completed"
+    },
+    {
+      "id": "2",
+      "userid": "1",
+      "itemName": "맥북 프로2",
+      "targetPrice": 3500000,
+      "savedAmount": 1200000,
+      "targetDate": "2026-12-31",
+      "status": "proceeding"
+    }
+  ],
+  "purchases": [
+    {
+      "id": "1",
+      "wishlistId": "1",
+      "userid": "1",
+      "itemName": "에어팟",
+      "completionDate": "2026-03-01",
+      "finalPrice": 300000
+    }
+  ]
+}
