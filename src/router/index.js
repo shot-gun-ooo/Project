@@ -1,54 +1,48 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-// 이미지의 폴더 구조에 맞춘 임포트 경로
 import Login from "../pages/auth/Login.vue";
-import My from "../pages/auth/My.vue"; // 이미지상 auth 폴더 안에 있음
+import My from "../pages/auth/My.vue";
 import Signup from "../pages/auth/Signup.vue";
 import Budget from "../pages/budget/Budget.vue";
 import Dashboard from "../pages/dashboard/Dashboard.vue";
 import Transaction from "../pages/transaction/Transaction.vue";
-import TransDetail from "../pages/transaction/TransDetail.vue";
-import Wishlist from "../pages/Wishlist/Wishlist.vue"; // 이미지상 대문자 Wishlist 폴더
+import Wishlist from "../pages/Wishlist/Wishlist.vue";
 
 const routes = [
   {
     path: "/",
-    name: "Dashboard",
+    name: "dashboard",
     component: Dashboard,
   },
   {
     path: "/trans",
-    name: "Transaction",
+    name: "trans",
     component: Transaction,
   },
-  {
-    path: "/trans/:id",
-    name: "TransDetail",
-    component: TransDetail,
-  },
+
   {
     path: "/budget",
-    name: "Budget",
+    name: "budget",
     component: Budget,
   },
   {
     path: "/wishlist",
-    name: "Wishlist",
+    name: "wishlist",
     component: Wishlist,
   },
   {
     path: "/users/signup",
-    name: "Signup",
+    name: "users/signup",
     component: Signup,
   },
   {
     path: "/users/login",
-    name: "Login",
+    name: "users/login",
     component: Login,
   },
   {
     path: "/users/my/:id",
-    name: "My",
+    name: "users/my",
     component: My,
   },
 ];
