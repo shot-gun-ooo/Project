@@ -45,8 +45,7 @@ const handleLogin = () => {
     // successCallback: 로그인 성공 시 실행
     () => {
       alert('로그인에 성공했습니다.');
-      router.push({ name: 'dashboard' }); // 대시보드로 이동
-      window.location.href = '/'; //
+      window.location.href = '/'; // 대시보드로 이동하며 페이지 새로고침
     },
     // failCallback: 로그인 실패 시 실행
     () => {

@@ -121,8 +121,11 @@ const fetchUserById = async (userId) => {
 // 8. 경로 접근 가능 여부 판단
 // ==============================
 const isMatchToRoles = (routeName) => {
+  // 경로 이름이 없거나 권한 정의 목록에 없으면 기본적으로 접근 허용 (보안 취약점 방지보다 사용성 우선)
+  if (!routeName) return true;
   const route = routesToRoles.find((r) => r.name === routeName);
-  if (!route) return false;
+  if (!route) return true;
+
   if (routeName === 'notfound') return true;
 
   const userInfo = getUserInfo();

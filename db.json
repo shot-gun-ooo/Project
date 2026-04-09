@@ -5,10 +5,7 @@
       "userid": "user01",
       "name": "홍길동",
       "email": "hong@kb.com",
-<<<<<<< HEAD
       "roles": ["users"],
-=======
->>>>>>> origin/jin
       "password": "12345"
     },
     {
@@ -16,7 +13,6 @@
       "userid": "user02",
       "name": "김철수",
       "email": "kim@kb.com",
-<<<<<<< HEAD
       "roles": ["users"],
       "password": "34567"
     },
@@ -51,9 +47,6 @@
       "password": "qqq",
       "roles": ["users"],
       "id": "4lY1c97"
-=======
-      "password": "34567"
->>>>>>> origin/jin
     }
   ],
   "transactions": [
@@ -78,11 +71,7 @@
       "memo": "4월 정기 급여"
     }
   ],
-<<<<<<< HEAD
-  "budget": [
-=======
   "budgets": [
->>>>>>> origin/jin
     {
       "id": "1",
       "userid": "1",
@@ -92,17 +81,7 @@
       "category": "전체"
     }
   ],
-<<<<<<< HEAD
   "incomeCategory": ["월급", "용돈", "이자", "부업", "기타"],
-=======
-  "incomeCategory": [
-    "월급",
-    "용돈",
-    "이자",
-    "부업",
-    "기타"
-  ],
->>>>>>> origin/jin
   "expenseCategory": [
     "식비",
     "교통비",
@@ -135,7 +114,6 @@
       "status": "completed"
     },
     {
-<<<<<<< HEAD
       "id": "2",
       "userid": "1",
       "itemName": "맥북 프로2",
@@ -143,7 +121,8 @@
       "savedAmount": 1200000,
       "targetDate": "2026-12-31",
       "status": "proceeding"
-=======
+    },
+    {
       "userid": "1",
       "itemName": "아무거나",
       "targetPrice": 200000,
@@ -169,7 +148,6 @@
       "targetDate": "2027-03-03",
       "status": "proceeding",
       "id": "GK6Rkpb"
->>>>>>> origin/jin
     }
   ],
   "purchases": [
@@ -182,8 +160,4 @@
       "finalPrice": 300000
     }
   ]
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> origin/jin

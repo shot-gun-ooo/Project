@@ -13,7 +13,7 @@ export default defineConfig({
     proxy: {
       // /api로 시작하는 요청을 json-server(3000번 포트)로 전달
       "/api": {
-        target: "http://localhost:3000",
+        target: "http://127.0.0.1:3000",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },

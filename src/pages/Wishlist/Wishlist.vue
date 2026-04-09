@@ -1,26 +1,26 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from "vue";
 import {
   getWishlists,
   getWishlistById,
   createWishlist,
   deleteWishlist,
   updateSavedAmount,
-} from '@/api/wishlist.js';
-import { getPurchases, createPurchase } from '@/api/purchase.js';
+} from "@/api/wishlist.js";
+import { getPurchases, createPurchase } from "@/api/purchase.js";
 
 // --- 상태 관리 (State) ---
-const userid = '1'; // 현재 로그인한 사용자 ID (하드코딩)
+const userid = "1"; // 현재 로그인한 사용자 ID (하드코딩)
 const wishlists = ref([]); // 전체 위시리스트 데이터
 const purchases = ref([]); // 구매 완료 목록 데이터
-const selectedWishlistId = ref(''); // 라디오 버튼이나 셀렉트 박스에서 선택된 위시리스트 ID
+const selectedWishlistId = ref(""); // 라디오 버튼이나 셀렉트 박스에서 선택된 위시리스트 ID
 const isLoading = ref(false); // 로딩 상태 제어
 
 // 신규 위시리스트 등록을 위한 입력 폼 데이터
 const form = reactive({
-  itemName: '',
-  targetPrice: '',
-  targetDate: '',
+  itemName: "",
+  targetPrice: "",
+  targetDate: "",
 });
 
 // --- 계산된 속성 (Computed) ---
@@ -29,7 +29,7 @@ const activeWishlists = computed(() =>
   wishlists.value.filter(
     (item) =>
       String(item.userid) === String(userid) &&
-      (item.status === 'proceeding' || !item.status),
+      (item.status === "proceeding" || !item.status),
   ),
 );
 
@@ -62,8 +62,8 @@ const fetchAll = async () => {
     await fetchWishlists();
     await fetchPurchases();
   } catch (error) {
-    console.error('데이터 조회 실패:', error);
-    alert('데이터를 불러오는 중 오류가 발생했습니다.');
+    console.error("데이터 조회 실패:", error);
+    alert("데이터를 불러오는 중 오류가 발생했습니다.");
   } finally {
     isLoading.value = false;
   }
@@ -76,9 +76,9 @@ onMounted(() => {
 
 // --- 유틸리티 함수 (Logic) ---
 const resetForm = () => {
-  form.itemName = '';
-  form.targetPrice = '';
-  form.targetDate = '';
+  form.itemName = "";
+  form.targetPrice = "";
+  form.targetDate = "";
 };
 
 // 저축 진행률 계산 (%)
@@ -126,11 +126,11 @@ const getCircleStyle = (savedAmount, targetPrice) => {
 // 새 위시리스트 추가
 const addWishlist = async () => {
   if (!form.itemName.trim() || !form.targetPrice || !form.targetDate) {
-    alert('상품명, 가격, 목표 날짜를 모두 입력해주세요.');
+    alert("상품명, 가격, 목표 날짜를 모두 입력해주세요.");
     return;
   }
   if (Number(form.targetPrice) <= 0) {
-    alert('가격은 0보다 커야 합니다.');
+    alert("가격은 0보다 커야 합니다.");
     return;
   }
   try {
@@ -140,23 +140,23 @@ const addWishlist = async () => {
       targetPrice: Number(form.targetPrice),
       savedAmount: 0,
       targetDate: form.targetDate,
-      status: 'proceeding',
+      status: "proceeding",
     });
     resetForm();
     await fetchWishlists();
   } catch (error) {
-    console.error('위시리스트 등록 실패:', error);
-    alert('위시리스트 등록에 실패했습니다.');
+    console.error("위시리스트 등록 실패:", error);
+    alert("위시리스트 등록에 실패했습니다.");
   }
 };
 
 // 특정 위시리스트에 금액 추가
 const addMoney = async (wishlist) => {
-  const input = prompt('추가할 금액을 입력하세요.');
+  const input = prompt("추가할 금액을 입력하세요.");
   if (input === null) return;
   const amount = Number(input);
   if (Number.isNaN(amount) || amount <= 0) {
-    alert('올바른 금액을 입력해주세요.');
+    alert("올바른 금액을 입력해주세요.");
     return;
   }
   try {
@@ -168,36 +168,36 @@ const addMoney = async (wishlist) => {
     await updateSavedAmount(wishlist.id, nextSavedAmount);
     await fetchWishlists();
   } catch (error) {
-    console.error('돈 넣기 실패:', error);
-    alert('돈 넣기에 실패했습니다.');
+    console.error("돈 넣기 실패:", error);
+    alert("돈 넣기에 실패했습니다.");
   }
 };
 
 // 선택된 위시리스트 삭제
 const removeSelectedWishlist = async () => {
   if (!selectedWishlistId.value) {
-    alert('삭제할 위시리스트를 선택해주세요.');
+    alert("삭제할 위시리스트를 선택해주세요.");
     return;
   }
-  const ok = confirm('선택한 위시리스트를 삭제할까요?');
+  const ok = confirm("선택한 위시리스트를 삭제할까요?");
   if (!ok) return;
   try {
     await deleteWishlist(selectedWishlistId.value);
-    selectedWishlistId.value = '';
+    selectedWishlistId.value = "";
     await fetchWishlists();
   } catch (error) {
-    console.error('위시리스트 삭제 실패:', error);
-    alert('위시리스트 삭제에 실패했습니다.');
+    console.error("위시리스트 삭제 실패:", error);
+    alert("위시리스트 삭제에 실패했습니다.");
   }
 };
 
 // 위시리스트 완료 -> 구매 내역으로 이동
 const completePurchase = async () => {
   if (!selectedWishlistId.value) {
-    alert('구매 완료할 위시리스트를 선택해주세요.');
+    alert("구매 완료할 위시리스트를 선택해주세요.");
     return;
   }
-  
+
   try {
     // 1. 위시리스트 상세 정보 조회
     const wishlistRes = await getWishlistById(selectedWishlistId.value);
@@ -214,20 +214,20 @@ const completePurchase = async () => {
 
     // 2. 구매 내역 생성을 "먼저" 수행 (순서 변경)
     const postRes = await createPurchase(payload);
-    
+
     if (postRes.status === 201 || postRes.status === 200) {
       // 3. 생성이 성공했을 때만 위시리스트에서 삭제
       await deleteWishlist(wishlist.id);
-      
-      selectedWishlistId.value = '';
+
+      selectedWishlistId.value = "";
       // 목록 새로고침
       await fetchWishlists();
       await fetchPurchases();
-      alert('구매가 완료되어 목록으로 이동되었습니다!');
+      alert("구매가 완료되어 목록으로 이동되었습니다!");
     }
   } catch (error) {
-    console.error('처리 중 오류 발생:', error);
-    alert('구매 처리 중 오류가 발생했습니다. 서버 로그를 확인하세요.');
+    console.error("처리 중 오류 발생:", error);
+    alert("구매 처리 중 오류가 발생했습니다. 서버 로그를 확인하세요.");
   }
 };
 </script>
@@ -250,7 +250,9 @@ const completePurchase = async () => {
             v-for="item in activeWishlists"
             :key="item.id"
             class="wishlist-card"
-            :class="{ selected: String(selectedWishlistId) === String(item.id) }"
+            :class="{
+              selected: String(selectedWishlistId) === String(item.id),
+            }"
           >
             <div class="card-top">
               <label class="radio-wrap">
@@ -279,7 +281,13 @@ const completePurchase = async () => {
 
             <div class="info-box">
               D-{{ getDday(item.targetDate) }} / 하루
-              {{ getDailyAmount(item.targetPrice, item.savedAmount, item.targetDate).toLocaleString() }}원 저금
+              {{
+                getDailyAmount(
+                  item.targetPrice,
+                  item.savedAmount,
+                  item.targetDate,
+                ).toLocaleString()
+              }}원 저금
             </div>
 
             <button class="action-btn primary" @click="addMoney(item)">
@@ -297,9 +305,19 @@ const completePurchase = async () => {
         <section class="panel-card input-panel">
           <div class="panel-badge">상품 정보 입력</div>
           <label class="field-label">상품</label>
-          <input v-model="form.itemName" type="text" class="field-input" placeholder="상품명을 입력하세요" />
+          <input
+            v-model="form.itemName"
+            type="text"
+            class="field-input"
+            placeholder="상품명을 입력하세요"
+          />
           <label class="field-label">가격</label>
-          <input v-model="form.targetPrice" type="number" class="field-input" placeholder="가격을 입력하세요" />
+          <input
+            v-model="form.targetPrice"
+            type="number"
+            class="field-input"
+            placeholder="가격을 입력하세요"
+          />
           <label class="field-label">목표 날짜</label>
           <input v-model="form.targetDate" type="date" class="field-input" />
           <button class="action-btn primary full" @click="addWishlist">
@@ -311,26 +329,46 @@ const completePurchase = async () => {
           <section class="panel-card purchase-action-panel">
             <div class="select-card">
               <h3 class="select-title">위시리스트 선택</h3>
-              <select v-model="selectedWishlistId" class="field-input select-input">
+              <select
+                v-model="selectedWishlistId"
+                class="field-input select-input"
+              >
                 <option value="">위시리스트 목록</option>
-                <option v-for="item in activeWishlists" :key="item.id" :value="String(item.id)">
+                <option
+                  v-for="item in activeWishlists"
+                  :key="item.id"
+                  :value="String(item.id)"
+                >
                   {{ item.itemName }}
                 </option>
               </select>
             </div>
-            <button class="action-btn primary full" @click="removeSelectedWishlist">선택 삭제</button>
-            <button class="action-btn secondary full" @click="completePurchase">구매 완료</button>
+            <button
+              class="action-btn primary full"
+              @click="removeSelectedWishlist"
+            >
+              선택 삭제
+            </button>
+            <button class="action-btn secondary full" @click="completePurchase">
+              구매 완료
+            </button>
           </section>
 
           <section class="panel-card purchase-list-panel">
             <div class="panel-badge list-badge">구매 성공 목록</div>
             <ul v-if="purchaseList.length" class="purchase-list">
-              <li v-for="purchase in purchaseList" :key="purchase.id" class="purchase-item">
+              <li
+                v-for="purchase in purchaseList"
+                :key="purchase.id"
+                class="purchase-item"
+              >
                 <div class="purchase-name">{{ purchase.itemName }}</div>
                 <div class="purchase-date">{{ purchase.completionDate }}</div>
               </li>
             </ul>
-            <div v-else class="empty-purchase">구매 완료된 항목이 없습니다.</div>
+            <div v-else class="empty-purchase">
+              구매 완료된 항목이 없습니다.
+            </div>
           </section>
         </div>
       </section>
@@ -364,7 +402,11 @@ const completePurchase = async () => {
 
 .page-title {
   margin: 0;
-  font-size: clamp(24px, 4vw, 32px); /* 화면 크기에 따라 폰트 사이즈 유동적 조절 */
+  font-size: clamp(
+    24px,
+    4vw,
+    32px
+  ); /* 화면 크기에 따라 폰트 사이즈 유동적 조절 */
   font-weight: 800;
   color: #222;
 }
@@ -613,7 +655,9 @@ const completePurchase = async () => {
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
