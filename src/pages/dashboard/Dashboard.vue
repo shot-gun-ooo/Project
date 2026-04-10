@@ -9,6 +9,7 @@ const latestTransactions = ref([]);
 const budgetAmount = ref(0);
 const wishlists = ref([]);
 const selectedWishlist = ref(null);
+const categories = ref([]);
 
 // 2026년 최저 시급 (사용자 설정 기준)
 const HOURLY_WAGE = 10320;
@@ -16,6 +17,15 @@ const HOURLY_WAGE = 10320;
 const currentMonthStr = computed(() => {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+});
+
+const categoryMap = computed(() => {
+  const map = {};
+  categories.value.forEach(c => {
+    map[c.id] = c.name;
+    map[c.name] = c.name; 
+  });
+  return map;
 });
 
 const fetchData = async () => {
@@ -26,7 +36,7 @@ const fetchData = async () => {
 
   try {
     const timestamp = new Date().getTime();
-    const [resTrans, resBudget, resWish] = await Promise.all([
+    const [resTrans, resBudget, resWish, resExpCat, resIncCat] = await Promise.all([
       axios.get("/api/transactions", {
         params: { userid: currentId, _t: timestamp },
       }),
@@ -36,21 +46,24 @@ const fetchData = async () => {
       axios.get("/api/wishlists", {
         params: { userid: currentId, _t: timestamp },
       }),
+      axios.get("/api/expenseCategory"),
+      axios.get("/api/incomeCategory")
     ]);
 
     transactions.value = resTrans.data || [];
+    categories.value = [...(resExpCat.data || []), ...(resIncCat.data || [])];
 
     const budgets = resBudget.data || [];
     if (budgets.length > 0) {
+      // 이번 달 예산 찾기
       const monthlyBudget = budgets.find((b) =>
         String(b.date).startsWith(currentMonthStr.value),
       );
       budgetAmount.value = monthlyBudget
         ? Number(monthlyBudget.amount)
-        : Number(budgets[0].amount);
+        : Number(budgets[budgets.length - 1].amount);
     }
 
-    // 진행 중인 위시리스트 중 랜덤으로 1개 선택
     const activeWishes = (resWish.data || []).filter(
       (w) => w.status !== "completed",
     );
@@ -68,25 +81,52 @@ const fetchData = async () => {
   }
 };
 
+const currentMonthExpense = computed(() => {
+  return transactions.value
+    .filter(
+      (t) =>
+        String(t.type).trim() === "expense" &&
+        String(t.date).startsWith(currentMonthStr.value),
+    )
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+});
+
 const workHoursSpent = computed(() => {
-  if (expenseTotal.value === 0) return 0;
-  return (expenseTotal.value / HOURLY_WAGE).toFixed(1);
+  if (currentMonthExpense.value === 0) return 0;
+  return (currentMonthExpense.value / HOURLY_WAGE).toFixed(1);
 });
 
 const wishlistAnalysis = computed(() => {
   if (!selectedWishlist.value) return null;
 
   const item = selectedWishlist.value;
-  const budgetGap = budgetAmount.value - expenseTotal.value;
+  const remainingCost = item.targetPrice - (item.savedAmount || 0);
+  const monthlySurplus = budgetAmount.value - currentMonthExpense.value;
 
-  // 예산 잔액을 시급(8시간 근무) 기준으로 환산하여 구매 가능일수 계산
-  const impactDays = Math.abs(Math.floor(budgetGap / (HOURLY_WAGE * 8)));
-
-  return {
-    itemName: item.itemName,
-    isGood: budgetGap >= 0,
-    days: impactDays > 0 ? impactDays : 1,
-  };
+  if (monthlySurplus > 0) {
+    const monthsToGoal = Math.ceil(remainingCost / monthlySurplus);
+    
+    return {
+      itemName: item.itemName,
+      isGood: true,
+      months: monthsToGoal,
+      icon: monthsToGoal <= 1 ? "🤩" : "😐",
+      message: monthsToGoal <= 1 
+        ? `와우! 다음 달이면 ${item.itemName}을(를) 살 수 있어요! 🚀`
+        : `이대로만 아끼면 ${monthsToGoal}개월 뒤에 구매 완료!`,
+    };
+  } else {
+    const overspent = Math.abs(monthlySurplus);
+    const delayHours = Math.ceil(overspent / HOURLY_WAGE);
+    
+    return {
+      itemName: item.itemName,
+      isGood: false,
+      icon: "😡",
+      message: `예산 초과! ${item.itemName} 구매가 멀어지고 있어요.`,
+      subMessage: `초과한 ${overspent.toLocaleString()}원을 벌려면 ${delayHours}시간 더 일해야 해요.`
+    };
+  }
 });
 
 const monthlyStats = computed(() => {
@@ -110,13 +150,13 @@ const monthlyStats = computed(() => {
 
 const incomeTotal = computed(() => {
   return transactions.value
-    .filter((t) => t.type === 'income')
+    .filter((t) => t.type === 'income' && String(t.date).startsWith(currentMonthStr.value))
     .reduce((sum, t) => sum + Number(t.amount), 0);
 });
 
 const expenseTotal = computed(() => {
   return transactions.value
-    .filter((t) => t.type === 'expense')
+    .filter((t) => t.type === 'expense' && String(t.date).startsWith(currentMonthStr.value))
     .reduce((sum, t) => sum + Number(t.amount), 0);
 });
 
@@ -124,7 +164,8 @@ const netProfit = computed(() => incomeTotal.value - expenseTotal.value);
 
 const budgetUsageRate = computed(() => {
   if (budgetAmount.value === 0) return 0;
-  return Math.round((expenseTotal.value / budgetAmount.value) * 100);
+  // 전체 지출이 아닌 이번 달 지출 기준으로 수정
+  return Math.round((currentMonthExpense.value / budgetAmount.value) * 100);
 });
 
 onMounted(fetchData);
@@ -134,13 +175,13 @@ onMounted(fetchData);
   <div class="dash-grid">
     <section class="dash-main">
       <div class="kb-card reality-check-banner">
-        <div class="icon">⏰</div>
+        <div class="reality-icon">💸</div>
         <div class="content">
           <h4>현타 계산기</h4>
           <p>
-            이번 달 지출을 위해 당신은
-            <span class="highlight">{{ workHoursSpent }}시간</span> 동안
-            일했습니다.
+            이번 달 <span class="highlight">지출</span>을 위해 당신은 <br/>
+            최저시급({{ HOURLY_WAGE.toLocaleString() }}원) 기준 
+            인생의 <span class="highlight">{{ workHoursSpent }}시간</span>을 바쳤습니다.
           </p>
         </div>
       </div>
@@ -184,7 +225,7 @@ onMounted(fetchData);
             <tbody>
               <tr v-for="t in latestTransactions" :key="t.id">
                 <td>
-                  <span class="cat-tag">{{ t.category }}</span>
+                  <span class="cat-tag">{{ categoryMap[t.category] || t.category }}</span>
                 </td>
                 <td>{{ t.date }}</td>
                 <td>{{ t.memo }}</td>
@@ -231,18 +272,18 @@ onMounted(fetchData);
 
         <div class="wishlist-motivation" v-if="wishlistAnalysis">
           <div class="divider"></div>
-          <p v-if="wishlistAnalysis.isGood" class="msg-box good">
-            🚀 지금처럼 아끼면
-            <strong>{{ wishlistAnalysis.itemName }}</strong> 구매가
-            <span class="blue-text">{{ wishlistAnalysis.days }}일</span>
-            빨라집니다!
-          </p>
-          <p v-else class="msg-box bad">
-            ⚠️ 예산 초과로
-            <strong>{{ wishlistAnalysis.itemName }}</strong> 구매가
-            <span class="red-text">{{ wishlistAnalysis.days }}일</span> 늦어지고
-            있어요.
-          </p>
+          <div class="wishlist-status-box" :class="wishlistAnalysis.isGood ? 'good' : 'bad'">
+            <div class="status-icon">{{ wishlistAnalysis.icon }}</div>
+            <div class="status-content">
+              <p v-if="wishlistAnalysis.isGood" class="msg-box good">
+                {{ wishlistAnalysis.message }}
+              </p>
+              <p v-else class="msg-box bad">
+                <strong>{{ wishlistAnalysis.message }}</strong><br/>
+                <span class="sub-msg">{{ wishlistAnalysis.subMessage }}</span>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -272,10 +313,14 @@ onMounted(fetchData);
 .reality-check-banner {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 20px;
+  gap: 20px;
+  padding: 25px;
   background: #fff;
   border: 1px solid #eee;
+}
+.reality-icon {
+  font-size: 42px;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
 }
 .reality-check-banner h4 {
   margin: 0;
@@ -293,10 +338,30 @@ onMounted(fetchData);
   text-decoration: underline;
 }
 
-/* 위시리스트 동기부여 (사이드바 내부) */
+/* 위시리스트 동기부여 */
 .wishlist-motivation {
   margin-top: 15px;
 }
+.wishlist-status-box {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  border-radius: 20px;
+}
+.wishlist-status-box.good { background: #f0f7ff; }
+.wishlist-status-box.bad { background: #fff5f5; border: 1px solid #ffebeb; }
+
+.status-icon {
+  font-size: 36px;
+}
+.sub-msg {
+  font-size: 0.85em;
+  color: #666;
+  display: block;
+  margin-top: 4px;
+}
+
 .divider {
   height: 1px;
   background: #f0f0f0;
@@ -306,24 +371,7 @@ onMounted(fetchData);
   font-size: 13px;
   line-height: 1.5;
   color: #555;
-  padding: 10px;
-  border-radius: 12px;
 }
-.msg-box.good {
-  background: #f0f7ff;
-}
-.msg-box.bad {
-  background: #fff5f5;
-}
-.blue-text {
-  color: #2b78e4;
-  font-weight: 800;
-}
-.red-text {
-  color: #e44d4d;
-  font-weight: 800;
-}
-
 .kb-card {
   background: #fff;
   border-radius: 24px;

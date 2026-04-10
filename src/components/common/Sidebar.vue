@@ -55,21 +55,21 @@
               
               <optgroup v-if="modalType === 'income'" label="수입">
                 <option
-                  v-for="name in incomeCategories"
-                  :key="`income-${name}`"
-                  :value="name"
+                  v-for="cat in incomeCategories"
+                  :key="`income-${cat.id}`"
+                  :value="cat.name"
                 >
-                  {{ name }}
+                  {{ cat.name }}
                 </option>
               </optgroup>
 
               <optgroup v-if="modalType === 'expense'" label="지출">
                 <option
-                  v-for="name in expenseCategories"
-                  :key="`expense-${name}`"
-                  :value="name"
+                  v-for="cat in expenseCategories"
+                  :key="`expense-${cat.id}`"
+                  :value="cat.name"
                 >
-                  {{ name }}
+                  {{ cat.name }}
                 </option>
               </optgroup>
             </select>
@@ -167,8 +167,18 @@ const openModal = (type) => {
 };
 
 const submitData = async () => {
-  if (!formData.value.category || formData.value.amount <= 0) {
-    alert("카테고리와 금액을 정확히 입력해주세요.");
+  const { category, amount, date } = formData.value;
+
+  // 1. 필수 입력 항목 검사 (Validation)
+  if (!category || category.trim() === "") {
+    alert("분류를 선택해주세요. 카테고리는 필수 항목입니다.");
+    return;
+  }
+
+  // 2. 금액 유효성 및 음수 처리 (Exception Handling)
+  const numericAmount = Number(amount);
+  if (isNaN(numericAmount) || numericAmount <= 0) {
+    alert("금액은 0원보다 큰 숫자로 입력해주세요. (음수 입력 불가)");
     return;
   }
 
@@ -181,6 +191,7 @@ const submitData = async () => {
   try {
     const postData = {
       ...formData.value,
+      amount: numericAmount, // 확실하게 숫자 타입으로 저장
       userid: String(userInfo.id),
     };
 

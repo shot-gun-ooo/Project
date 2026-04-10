@@ -73,16 +73,6 @@
       "memo": "김철수 테스트 구매"
     },
     {
-      "id": "1",
-      "userid": "1",
-      "date": "2026-04-07",
-      "type": "expense",
-      "category": "식비",
-      "detailCategory": "외식",
-      "amount": 12000,
-      "memo": "점심 식사"
-    },
-    {
       "id": "2",
       "userid": "2",
       "date": "2026-04-07",
@@ -91,33 +81,6 @@
       "detailCategory": "본업",
       "amount": 3000000,
       "memo": "4월 정기 급여"
-    },
-    {
-      "userid": "1",
-      "date": "2026-04-05",
-      "type": "expense",
-      "category": "식비",
-      "amount": 50000,
-      "memo": "마트 장보기",
-      "id": "t1"
-    },
-    {
-      "userid": "1",
-      "date": "2026-04-01",
-      "type": "expense",
-      "category": "주거",
-      "amount": 400000,
-      "memo": "월세 납부",
-      "id": "t6"
-    },
-    {
-      "userid": "1",
-      "date": "2026-04-08",
-      "type": "expense",
-      "category": "쇼핑",
-      "amount": 75000,
-      "memo": "봄맞이 신발",
-      "id": "t7"
     },
     {
       "userid": "1",
@@ -199,14 +162,41 @@
       "amount": 300000,
       "memo": "겨울 코트 세일",
       "id": "t12"
+    },
+    {
+      "date": "2026-04-10",
+      "category": "부업",
+      "amount": 100000,
+      "memo": "",
+      "type": "income",
+      "userid": "1",
+      "id": "qeAGkm5"
+    },
+    {
+      "date": "2026-04-10",
+      "category": "식비",
+      "amount": 10000,
+      "memo": "",
+      "type": "expense",
+      "userid": "1",
+      "id": "oIW3mlT"
+    },
+    {
+      "date": "2026-04-10",
+      "category": "공과금",
+      "amount": 10000000,
+      "memo": "",
+      "type": "expense",
+      "userid": "1",
+      "id": "AGKB2Pa"
     }
   ],
   "budgets": [
     {
       "id": "1",
       "userid": "1",
-      "date": "2026-04-09",
-      "amount": 5000000,
+      "date": "2026-04-10",
+      "amount": 10000000,
       "period": "current",
       "category": "전체"
     },
@@ -333,22 +323,14 @@
   ],
   "wishlists": [
     {
-      "id": "1",
       "userid": "1",
-      "itemName": "맥북 프로",
-      "targetPrice": 3500000,
-      "savedAmount": 2310000,
-      "targetDate": "2026-12-31",
-      "status": "proceeding"
+      "itemName": "애플 워치",
+      "targetPrice": 1000000,
+      "savedAmount": 0,
+      "targetDate": "2026-05-20",
+      "status": "proceeding",
+      "id": 1
     }
   ],
-  "purchases": [
-    {
-      "id": "1",
-      "wishlistId": "1",
-      "userid": "1",
-      "itemName": "에어팟",
-      "completionDate": "2026-03-01"
-    }
-  ]
+  "purchases": []
 }
