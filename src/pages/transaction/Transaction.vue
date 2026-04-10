@@ -58,7 +58,7 @@
                       v-model="selectedNewCategory"
                       @change="applySelectedCategory('new')"
                     >
-                      <option value="">분류 선택</option>
+                      <option value="">직접 입력</option>
                       <optgroup label="수입">
                         <option
                           v-for="name in incomeCategories"
@@ -250,7 +250,8 @@
 
             <div class="fixed-head-actions">
               <div class="total-box">
-                
+                <span>합계:</span>
+                <strong>{{ formatCurrency(totalPeriodicExpense) }}</strong>
               </div>
               <button
                 class="line-btn"
@@ -383,7 +384,7 @@
                   "
                 >
                   <td colspan="4" class="empty">
-                    
+                    등록된 고정 지출이 없습니다.
                   </td>
                 </tr>
               </tbody>
@@ -450,7 +451,7 @@ import { getUserInfo } from "@/utils/authutil";
 const API_BASE = "/api";
 
 function getCurrentUserId() {
-  const userInfo = getUserInfo();
+  const userInfo = getUserInfo(); //로그인 사용자
   return userInfo?.authenticated ? String(userInfo.id) : null;
 }
 
@@ -472,11 +473,11 @@ const range = reactive({
 });
 
 const transactions = ref([]);
-const periodicExpenses = ref([]); 
+const periodicExpenses = ref([]);
 const incomeCategories = ref([]);
 const expenseCategories = ref([]);
 
-const isAddingTransaction = ref(false);
+const isAddingTransaction = ref(false); //내역에서 추가 누르면 true
 const editingTransactionId = ref(null);
 const selectedNewCategory = ref("");
 const selectedEditCategory = ref("");
@@ -498,7 +499,6 @@ const editingTransaction = reactive({
   type: "expense",
 });
 
-/* 월 고정 지출 UI */
 const isAddingPeriodicExpense = ref(false);
 const editingPeriodicExpenseId = ref(null);
 
@@ -515,14 +515,14 @@ const editingPeriodicExpense = reactive({
   payDay: 1,
 });
 
-const draftFilter = reactive({
+const draftFilter = reactive({  //입력
   keyword: "",
   date: "",
   category: "",
   amount: null,
 });
 
-const activeFilter = reactive({
+const activeFilter = reactive({  //검색
   keyword: "",
   date: "",
   category: "",
@@ -545,7 +545,7 @@ const expenseCategorySet = computed(() => {
   );
 });
 
-const filteredTransactions = computed(() => {
+const filteredTransactions = computed(() => {  //날짜반영
   return [...transactions.value]
     .filter((item) => isInRange(item.date))
     .filter((item) => {
@@ -576,22 +576,22 @@ const filteredTransactions = computed(() => {
     });
 });
 
-const totalPeriodicExpense = computed(() => {
-  return 0;
+const totalPeriodicExpense = computed(() => {  //고정지출 합계
+  return periodicExpenses.value.reduce(
+    (sum, item) => sum + Number(item.amount || 0),
+    0
+  );
 });
 
 onMounted(async () => {
   await Promise.all([
     fetchTransactions(),
+    fetchPeriodicExpenses(),
     fetchCategories(),
   ]);
 });
 
-/* ---------------------------
-   거래 내역 기능
---------------------------- */
-
-async function fetchTransactions() {
+async function fetchTransactions() {  //내역
   const userId = getCurrentUserId();
 
   if (!userId) {
@@ -610,6 +610,31 @@ async function fetchTransactions() {
   }
 }
 
+async function fetchPeriodicExpenses() {  //고정지출
+  const userId = getCurrentUserId();
+
+  if (!userId) {
+    periodicExpenses.value = [];
+    return;
+  }
+
+  try {
+    const { data } = await axios.get(`${API_BASE}/periodicExpense`, {
+      params: { userid: userId },
+    });
+
+    periodicExpenses.value = Array.isArray(data)
+      ? data.map((item) => ({
+          ...item,
+          payDay: getDayFromDate(item.date),
+        }))
+      : [];
+  } catch (error) {
+    console.error("고정 지출 조회 실패:", error);
+    alert("월 고정 지출을 불러오지 못했습니다.");
+  }
+}
+
 async function fetchCategories() {
   try {
     const [incomeRes, expenseRes] = await Promise.all([
@@ -618,10 +643,11 @@ async function fetchCategories() {
     ]);
 
     incomeCategories.value = Array.isArray(incomeRes.data)
-      ? incomeRes.data
+      ? incomeRes.data.map((item) => item.name)
       : [];
+
     expenseCategories.value = Array.isArray(expenseRes.data)
-      ? expenseRes.data
+      ? expenseRes.data.map((item) => item.name)
       : [];
   } catch (error) {
     console.error("카테고리 조회 실패:", error);
@@ -644,7 +670,7 @@ function cancelAddTransaction() {
   isAddingTransaction.value = false;
 }
 
-async function createTransaction() {
+async function createTransaction() {  //저장 누르면 검증 후 POST요청
   const userId = getCurrentUserId();
 
   if (!userId) {
@@ -685,7 +711,7 @@ async function createTransaction() {
 
 function beginEditTransaction(item) {
   isAddingTransaction.value = false;
-  editingTransactionId.value = String(item.id);
+  editingTransactionId.value = String(item.id); //수정 누르면 id를 여기 저장(수정모드)
   selectedEditCategory.value = "";
   editingTransaction.id = String(item.id);
   editingTransaction.date = item.date;
@@ -751,11 +777,191 @@ async function removeTransaction(id) {
   }
 }
 
+function startAddPeriodicExpense() {
+  isAddingPeriodicExpense.value = true;
+  editingPeriodicExpenseId.value = null;
+  newPeriodicExpense.memo = "";
+  newPeriodicExpense.amount = null;
+  newPeriodicExpense.payDay = 1;
+}
 
+function cancelAddPeriodicExpense() {
+  isAddingPeriodicExpense.value = false;
+}
 
-/* ---------------------------
-   필터
---------------------------- */
+async function createPeriodicExpense() {
+  const userId = getCurrentUserId();
+
+  if (!userId) {
+    alert("로그인 정보가 없습니다.");
+    return;
+  }
+
+  if (
+    !newPeriodicExpense.memo ||
+    !newPeriodicExpense.amount ||
+    !newPeriodicExpense.payDay
+  ) {
+    alert("내용, 비용, 결제일을 모두 입력해주세요.");
+    return;
+  }
+
+  const payDay = clampDay(newPeriodicExpense.payDay);
+  const fixedDate = buildDateFromDay(
+    currentYear,
+    Number(currentMonth),
+    payDay
+  );
+
+  try {
+    await axios.post(`${API_BASE}/periodicExpense`, {
+      userid: userId,
+      date: fixedDate,
+      type: "expense",
+      category: "고정 지출",
+      amount: Number(newPeriodicExpense.amount),
+      memo: newPeriodicExpense.memo.trim(),
+    });
+
+    isAddingPeriodicExpense.value = false;
+    await fetchPeriodicExpenses();
+  } catch (error) {
+    console.error("고정 지출 추가 실패:", error);
+    alert("고정 지출 추가에 실패했습니다.");
+  }
+}
+
+function beginEditPeriodicExpense(item) {
+  isAddingPeriodicExpense.value = false;
+  editingPeriodicExpenseId.value = String(item.id);
+  editingPeriodicExpense.id = String(item.id);
+  editingPeriodicExpense.memo = item.memo;
+  editingPeriodicExpense.amount = item.amount;
+  editingPeriodicExpense.payDay = getDayFromDate(item.date);
+}
+
+function cancelEditPeriodicExpense() {
+  editingPeriodicExpenseId.value = null;
+}
+
+async function updatePeriodicExpense() {
+  if (
+    !editingPeriodicExpense.memo ||
+    !editingPeriodicExpense.amount ||
+    !editingPeriodicExpense.payDay
+  ) {
+    alert("내용, 비용, 결제일을 모두 입력해주세요.");
+    return;
+  }
+
+  const payDay = clampDay(editingPeriodicExpense.payDay);
+  const fixedDate = buildDateFromDay(
+    currentYear,
+    Number(currentMonth),
+    payDay
+  );
+
+  try {
+    await axios.patch(
+      `${API_BASE}/periodicExpense/${editingPeriodicExpense.id}`,
+      {
+        memo: editingPeriodicExpense.memo.trim(),
+        amount: Number(editingPeriodicExpense.amount),
+        date: fixedDate,
+        category: "고정 지출",
+        type: "expense",
+      }
+    );
+
+    editingPeriodicExpenseId.value = null;
+    await fetchPeriodicExpenses();
+  } catch (error) {
+    console.error("고정 지출 수정 실패:", error);
+    alert("고정 지출 수정에 실패했습니다.");
+  }
+}
+
+async function removePeriodicExpense(id) {
+  const ok = window.confirm("이 월 고정 지출을 삭제할까요?");
+  if (!ok) return;
+
+  const targetId = String(id);
+
+  try {
+    await axios.delete(`${API_BASE}/periodicExpense/${targetId}`);
+    periodicExpenses.value = periodicExpenses.value.filter(
+      (item) => String(item.id) !== targetId
+    );
+
+    if (editingPeriodicExpenseId.value === targetId) {
+      editingPeriodicExpenseId.value = null;
+    }
+  } catch (error) {
+    console.error("고정 지출 삭제 실패:", error);
+    alert("고정 지출 삭제에 실패했습니다.");
+  }
+}
+
+async function savePeriodicExpensesToTransactions() { //고정을 내역에 반영
+  const userId = getCurrentUserId();
+
+  if (!userId) {
+    alert("로그인 정보가 없습니다.");
+    return;
+  }
+
+  if (periodicExpenses.value.length === 0) {
+    alert("저장할 월 고정 지출이 없습니다.");
+    return;
+  }
+
+  try {
+    const { data: currentTransactions } = await axios.get(
+      `${API_BASE}/transactions`,
+      {
+        params: { userid: userId },
+      }
+    );
+
+    const tasks = [];
+
+    for (const item of periodicExpenses.value) {
+      const payDay = clampDay(getDayFromDate(item.date));
+      const targetDate = buildDateFromDayByRangeMonth(range.start, payDay);
+
+      const exists = (currentTransactions || []).some((tx) => {
+        return (
+          String(tx.userid) === String(userId) &&
+          tx.date === targetDate &&
+          tx.memo === item.memo &&
+          Number(tx.amount) === Number(item.amount) &&
+          tx.category === "고정 지출"
+        );
+      });
+
+      if (!exists) {
+        tasks.push(
+          axios.post(`${API_BASE}/transactions`, {
+            userid: userId,
+            date: targetDate,
+            type: "expense",
+            category: "고정 지출",
+            detailCategory: "",
+            amount: Number(item.amount),
+            memo: item.memo,
+          })
+        );
+      }
+    }
+
+    await Promise.all(tasks);
+    await fetchTransactions();
+    alert("월 고정 지출이 거래 내역에 반영되었습니다.");
+  } catch (error) {
+    console.error("고정 지출 저장 실패:", error);
+    alert("고정 지출 저장에 실패했습니다.");
+  }
+}
 
 function applyFilter() {
   activeFilter.keyword = draftFilter.keyword;
@@ -778,10 +984,6 @@ function resetFilter() {
   activeFilter.category = "";
   activeFilter.amount = null;
 }
-
-/* ---------------------------
-   공통
---------------------------- */
 
 function detectTransactionType(category) {
   const normalized = String(category || "").trim().toLowerCase();
@@ -835,6 +1037,27 @@ function getDayFromDate(dateString) {
   if (!dateString) return 1;
   const parts = String(dateString).split("-");
   return Number(parts[2]) || 1;
+}
+
+function clampDay(day) {
+  const n = Number(day) || 1;
+  if (n < 1) return 1;
+  if (n > 31) return 31;
+  return n;
+}
+
+function buildDateFromDay(year, month, day) {
+  const lastDay = new Date(year, month, 0).getDate();
+  const safeDay = Math.min(Number(day), lastDay);
+  return `${year}-${String(month).padStart(2, "0")}-${String(safeDay).padStart(
+    2,
+    "0"
+  )}`;
+}
+
+function buildDateFromDayByRangeMonth(baseDate, day) {
+  const [year, month] = baseDate.split("-").map(Number);
+  return buildDateFromDay(year, month, day);
 }
 </script>
 

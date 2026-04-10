@@ -1,64 +1,35 @@
 {
   "users": [
     {
-      "id": "1",
-      "userid": "user01",
-      "name": "홍길동",
-      "email": "hong@kb.com",
+      "id": 3,
+      "userid": "admin",
+      "name": "관리자",
+      "email": "admin@kb.com",
+      "password": "1234",
       "roles": [
-        "users"
-      ],
-      "password": "12345"
+        "users",
+        "admins"
+      ]
     },
     {
-      "id": "2",
-      "userid": "user02",
-      "name": "김철수",
-      "email": "kim@kb.com",
+      "name": "user",
+      "userid": "user",
+      "email": "user@user.user",
+      "password": "user",
       "roles": [
         "users"
       ],
-      "password": "34567"
+      "id": 4
     },
     {
-      "userid": "user3",
-      "name": "김은수",
-      "email": "kim@kb.com",
-      "password": "34567",
+      "name": "user03",
+      "userid": "user",
+      "email": "user@user.com",
+      "password": "user",
       "roles": [
         "users"
       ],
-      "id": "uWme0ep"
-    },
-    {
-      "name": "ccc",
-      "userid": "ccc",
-      "email": "ccc",
-      "password": "lkllll",
-      "roles": [
-        "users"
-      ],
-      "id": "KK1bWpC"
-    },
-    {
-      "name": "ggg",
-      "userid": "ggg",
-      "email": "ggg",
-      "password": "ggg",
-      "roles": [
-        "users"
-      ],
-      "id": "QyeC3fE"
-    },
-    {
-      "name": "qqq",
-      "userid": "qqq",
-      "email": "qqq",
-      "password": "qqq",
-      "roles": [
-        "users"
-      ],
-      "id": "4lY1c97"
+      "id": 5
     }
   ],
   "transactions": [
@@ -74,9 +45,9 @@
     },
     {
       "id": "2",
-      "userid": "2",
+      "userid": "1",
       "date": "2026-04-07",
-      "type": "income",
+      "type": "expense",
       "category": "월급",
       "detailCategory": "본업",
       "amount": 3000000,
@@ -193,124 +164,126 @@
   ],
   "budgets": [
     {
-      "id": "1",
       "userid": "1",
-      "date": "2026-04-10",
-      "amount": 10000000,
-      "period": "current",
-      "category": "전체"
+      "date": "2026-04-01",
+      "type": "expense",
+      "category": "교통비",
+      "detailCategory": "",
+      "amount": 60000,
+      "memo": "ktx",
+      "id": "1vM6rPS"
     },
     {
-      "userId": "2",
-      "amount": 100000,
-      "date": "2026-04-09",
-      "period": "current",
-      "category": "전체",
-      "id": "Tw1CRc6"
+      "userid": "1",
+      "date": "2026-04-01",
+      "type": "expense",
+      "category": "공과금",
+      "detailCategory": "",
+      "amount": 123123,
+      "memo": "123123",
+      "id": "_AKt9We"
     },
     {
-      "userId": "2",
-      "amount": 100000,
-      "date": "2026-04-09",
-      "period": "current",
-      "category": "전체",
-      "id": "nMWCi1B"
+      "userid": "1",
+      "date": "2026-04-01",
+      "type": "income",
+      "category": "부업",
+      "detailCategory": "",
+      "amount": 10000,
+      "memo": "구독권",
+      "id": "vuzEZw5"
     },
     {
-      "userId": "2",
-      "amount": 100000,
-      "date": "2026-04-09",
-      "period": "current",
-      "category": "전체",
-      "id": "UneYdW4"
-    },
-    {
-      "userId": "2",
-      "amount": 10000000,
-      "date": "2026-04-09",
-      "period": "current",
-      "category": "전체",
-      "id": "CwIcexk"
-    },
-    {
-      "userId": "2",
-      "amount": 100000,
-      "date": "2026-04-09",
-      "period": "current",
-      "category": "전체",
-      "id": "-XWAXj2"
-    },
-    {
-      "userId": "2",
-      "amount": 100000,
-      "date": "2026-04-09",
-      "period": "current",
-      "category": "전체",
-      "id": "sFIfxFR"
+      "userid": "1",
+      "date": "2026-04-11",
+      "type": "expense",
+      "category": "고정 지출",
+      "detailCategory": "",
+      "amount": 11111,
+      "memo": "1111",
+      "id": "ewH-Uyg"
     },
     {
       "userid": "2",
-      "amount": 700000,
-      "date": "2026-04-09",
+      "date": "2026-04-01",
+      "type": "expense",
+      "category": "고정 지출",
+      "detailCategory": "",
+      "amount": 10000,
+      "memo": "넷플릭스",
+      "id": "Z98EyFY"
+    },
+    {
+      "userid": "2",
+      "date": "2026-04-07",
+      "type": "expense",
+      "category": "고정 지출",
+      "detailCategory": "",
+      "amount": 30000,
+      "memo": "통신비",
+      "id": "KlSfqXr"
+    },
+    {
+      "userid": "1",
+      "date": "2026-04-25",
+      "type": "expense",
+      "category": "고정 지출",
+      "detailCategory": "",
+      "amount": 55000,
+      "memo": "핸드폰 요금 자동이체",
+      "id": "5Bv9Tlp"
+    },
+    {
+      "userid": "1",
+      "date": "2026-04-05",
+      "type": "expense",
+      "category": "고정 지출",
+      "detailCategory": "",
+      "amount": 10000,
+      "memo": "netflix",
+      "id": "dTAc6fG"
+    },
+    {
+      "userid": "1",
+      "date": "2026-04-01",
+      "type": "expense",
+      "category": "고정 지출",
+      "detailCategory": "",
+      "amount": 10000,
+      "memo": "구독권",
+      "id": "9ppZBkR"
+    }
+  ],
+  "budgets": [
+    {
+      "id": "1",
+      "userid": "1",
+      "date": "2026-04-07",
+      "amount": 12000,
       "period": "current",
-      "category": "전체",
-      "id": "egGX0tY"
+      "category": "전체"
     }
   ],
   "incomeCategory": [
     {
-      "id": 4,
-      "name": "부업"
+      "name": "이자4",
+      "id": 5
     },
     {
-      "id": 5,
-      "name": "기타"
+      "name": "이자5",
+      "id": 6
+    },
+    {
+      "name": "이자6",
+      "id": 7
+    },
+    {
+      "name": "이자7",
+      "id": 8
     }
   ],
-  "expenseCategory": [
-    {
-      "id": 1,
-      "name": "식비"
-    },
-    {
-      "id": 2,
-      "name": "교통비"
-    },
-    {
-      "id": 3,
-      "name": "유흥"
-    },
-    {
-      "id": 4,
-      "name": "공과금"
-    },
-    {
-      "id": 5,
-      "name": "의료"
-    },
-    {
-      "id": 6,
-      "name": "주거"
-    },
-    {
-      "id": 7,
-      "name": "쇼핑"
-    },
-    {
-      "id": 8,
-      "name": "저축"
-    }
-  ],
+  "expenseCategory": [],
   "periodicExpense": [
-    {
-      "id": "1",
-      "userid": "1",
-      "date": "2026-04-25",
-      "type": "expense",
-      "category": "공과금",
-      "amount": 55000,
-      "memo": "핸드폰 요금 자동이체"
-    },
     {
       "userid": "2",
       "date": "2026-04-01",
@@ -319,18 +292,69 @@
       "amount": 10000,
       "memo": "넷플릭스",
       "id": "myt44Hv"
+    },
+    {
+      "userid": "1",
+      "date": "2026-04-05",
+      "type": "expense",
+      "category": "고정 지출",
+      "amount": 10000,
+      "memo": "netflix",
+      "id": "xA8OEma"
+    },
+    {
+      "userid": "1",
+      "date": "2026-04-01",
+      "type": "expense",
+      "category": "고정 지출",
+      "amount": 10000,
+      "memo": "구독권",
+      "id": "xdyvvuf"
+    },
+    {
+      "userid": "1",
+      "date": "2026-04-11",
+      "type": "expense",
+      "category": "고정 지출",
+      "amount": 11111,
+      "memo": "1111",
+      "id": "xNZjwi6"
+    },
+    {
+      "userid": "2",
+      "date": "2026-04-07",
+      "type": "expense",
+      "category": "고정 지출",
+      "amount": 30000,
+      "memo": "통신비",
+      "id": "j7CwJoh"
     }
   ],
   "wishlists": [
     {
       "userid": "1",
-      "itemName": "애플 워치",
-      "targetPrice": 1000000,
-      "savedAmount": 0,
-      "targetDate": "2026-05-20",
+      "itemName": "에어팟프로",
+      "targetPrice": 129999,
+      "savedAmount": 120000,
+      "targetDate": "2026-04-23",
       "status": "proceeding",
       "id": 1
     }
   ],
-  "purchases": []
+  "purchases": [
+    {
+      "sourceWishlistId": "1",
+      "userid": "1",
+      "itemName": "맥북 프로",
+      "completionDate": "2026-04-10",
+      "id": "Ryt6NUz"
+    },
+    {
+      "sourceWishlistId": "1",
+      "userid": "1",
+      "itemName": "카메라",
+      "completionDate": "2026-04-10",
+      "id": "FX629qm"
+    }
+  ]
 }

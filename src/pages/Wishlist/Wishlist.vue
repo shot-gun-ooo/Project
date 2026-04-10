@@ -10,6 +10,7 @@ import {
 } from '@/api/wishlist.js';
 import { getPurchases, createPurchase } from '@/api/purchase.js';
 import { getUserInfo } from '@/utils/authutil';
+import axios from 'axios';
 
 const router = useRouter();
 const userid = ref(null);
@@ -18,12 +19,17 @@ const purchases = ref([]);
 const selectedWishlistId = ref('');
 const isLoading = ref(false);
 
+const today = new Date().toISOString().split('T')[0];
+
+const onlyNumber = (value) => String(value).replace(/[^0-9]/g, '');
+
+const moneyInput = ref('');
+
 const form = reactive({
   itemName: '',
   targetPrice: '',
   targetDate: '',
 });
-
 
 const getProgress = (saved, target) => {
   if (!target || target === 0) return 0;
@@ -56,7 +62,6 @@ const fetchAll = async () => {
   try {
     isLoading.value = true;
 
-    // 1. 유저 정보 확인
     const userInfo = getUserInfo();
     if (!userInfo || !userInfo.authenticated) {
       alert('로그인이 필요합니다.');
@@ -66,16 +71,15 @@ const fetchAll = async () => {
 
     userid.value = String(userInfo.id);
 
-    // 2. 데이터 가져오기 (API 함수가 인자를 지원하지 않을 경우를 대비해 전체 로드 후 필터링)
     const [wishRes, purRes] = await Promise.all([
       getWishlists(),
       getPurchases(),
     ]);
 
-
     wishlists.value = wishRes.data.filter(
       (item) => String(item.userid) === userid.value,
     );
+
     purchases.value = purRes.data.filter(
       (item) => String(item.userid) === userid.value,
     );
@@ -91,7 +95,6 @@ onMounted(() => {
   fetchAll();
 });
 
-
 const activeWishlists = computed(() =>
   wishlists.value.filter(
     (item) => item.status === 'proceeding' || !item.status,
@@ -100,8 +103,16 @@ const activeWishlists = computed(() =>
 
 const purchaseList = computed(() => purchases.value);
 
-
 const addWishlist = async () => {
+  if (!form.targetPrice) {
+    alert('숫자만 입력하세요');
+    return;
+  }
+
+  if (form.targetDate < today) {
+    alert('날짜는 오늘 이후만 가능합니다');
+    return;
+  }
   if (!form.itemName.trim() || !form.targetPrice || !form.targetDate) {
     alert('모든 항목을 입력해주세요.');
     return;
@@ -126,22 +137,57 @@ const addWishlist = async () => {
 };
 
 const addMoney = async (wishlist) => {
-  const input = prompt('추가할 금액을 입력하세요.');
-  if (input === null) return;
-  const amount = Number(input);
-  if (isNaN(amount) || amount <= 0) {
-    alert('올바른 금액을 입력해주세요.');
-    return;
-  }
-  try {
-    const nextSavedAmount = Math.min(
-      Number(wishlist.targetPrice),
-      Number(wishlist.savedAmount) + amount,
-    );
-    await updateSavedAmount(wishlist.id, nextSavedAmount);
-    await fetchAll();
-  } catch (error) {
-    alert('금액 업데이트에 실패했습니다.');
+  moneyInput.value = '';
+
+  while (true) {
+    const input = prompt('추가할 금액을 입력하세요.', moneyInput.value);
+    if (input === null) return;
+
+    // 숫자만 남기기 (문자 입력 방지)
+    const numericValue = onlyNumber(input);
+
+    if (!numericValue) {
+      alert('숫자만 입력해주세요.');
+      continue;
+    }
+
+    const amount = Number(numericValue);
+
+    if (amount <= 0) {
+      alert('0원보다 큰 금액을 입력해주세요.');
+      continue;
+    }
+
+    try {
+      // 목표 금액 초과하지 않도록 제한
+      const nextSavedAmount = Math.min(
+        Number(wishlist.targetPrice),
+        Number(wishlist.savedAmount) + amount,
+      );
+
+      // 1. 위시리스트 저축 금액 업데이트
+      await updateSavedAmount(wishlist.id, nextSavedAmount);
+
+      // 2. 거래내역에 "저축" 기록 추가
+      await axios.post('http://127.0.0.1:3000/transactions', {
+        userid: userid.value,
+        date: new Date().toISOString().slice(0, 10),
+        type: 'expense',
+        category: '저축',
+        amount: amount,
+        memo: `${wishlist.itemName} 저축`,
+      });
+
+      // DB 기준으로 화면 다시 렌더링
+      await fetchAll();
+
+      alert(`${amount.toLocaleString()}원이 저축 내역에 저장되었습니다.`);
+      break;
+    } catch (error) {
+      console.error('돈 넣기 처리 실패:', error);
+      alert('돈 넣기 처리에 실패했습니다.');
+      break;
+    }
   }
 };
 
@@ -158,24 +204,47 @@ const removeSelectedWishlist = async () => {
 };
 
 const completePurchase = async () => {
-  if (!selectedWishlistId.value) return alert('항목을 선택해주세요.');
+  if (!selectedWishlistId.value) {
+    alert('항목을 선택해주세요.');
+    return;
+  }
+
   try {
+    // 선택한 위시리스트 데이터 가져오기
     const wishlistRes = await getWishlistById(selectedWishlistId.value);
     const wishlist = wishlistRes.data;
 
-    await createPurchase({
-      wishlistId: String(wishlist.id),
-      userid: String(wishlist.userid),
+    // 1. 위시리스트 → 구매목록으로 저장 (복사 개념)
+    const purchaseRes = await createPurchase({
+      sourceWishlistId: String(wishlist.id), // 원본 위시리스트 ID (연관삭제 방지용)
+      userid: userid.value,
       itemName: wishlist.itemName,
       completionDate: new Date().toISOString().slice(0, 10),
-      finalPrice: wishlist.targetPrice,
     });
 
-    await deleteWishlist(wishlist.id);
+    if (!purchaseRes || !purchaseRes.data) {
+      alert('구매 목록 저장에 실패했습니다.');
+      return;
+    }
+
+    // 2. 사용자 UX를 위해 화면에 먼저 반영
+    purchases.value.push(purchaseRes.data);
+
+    // 선택 초기화
     selectedWishlistId.value = '';
-    await fetchAll();
-    alert('구매 완료 목록으로 이동되었습니다!');
+
+    // 자연스럽게 보이도록 약간 딜레이
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    // 3. 기존 위시리스트 삭제
+    await deleteWishlist(wishlist.id);
+
+    // 4. 화면에서도 위시리스트 제거
+    wishlists.value = wishlists.value.filter(
+      (item) => String(item.id) !== String(wishlist.id),
+    );
   } catch (error) {
+    console.error('구매 처리 중 오류:', error);
     alert('구매 처리 중 오류가 발생했습니다.');
   }
 };
@@ -262,13 +331,20 @@ const completePurchase = async () => {
           />
           <label class="field-label">가격</label>
           <input
-            v-model="form.targetPrice"
-            type="number"
+            :value="form.targetPrice"
+            type="text"
+            inputmode="numeric"
             class="field-input"
             placeholder="가격을 입력하세요"
+            @input="form.targetPrice = onlyNumber($event.target.value)"
           />
           <label class="field-label">목표 날짜</label>
-          <input v-model="form.targetDate" type="date" class="field-input" />
+          <input
+            v-model="form.targetDate"
+            type="date"
+            class="field-input"
+            :min="today"
+          />
           <button class="action-btn primary full" @click="addWishlist">
             위시리스트 추가
           </button>
@@ -326,13 +402,11 @@ const completePurchase = async () => {
 </template>
 
 <style scoped>
-
 .wishlist-page {
   width: 100%;
   padding-top: 8px;
   box-sizing: border-box;
 }
-
 
 .page-head {
   display: flex;
@@ -393,7 +467,6 @@ const completePurchase = async () => {
   box-sizing: border-box;
 }
 
-
 .wishlist-card {
   padding: 22px 22px 24px;
   transition: all 0.2s ease;
@@ -429,7 +502,6 @@ const completePurchase = async () => {
   word-break: keep-all;
 }
 
-
 .progress-wrap {
   display: flex;
   justify-content: center;
@@ -460,7 +532,6 @@ const completePurchase = async () => {
   color: #222;
 }
 
-
 .info-box {
   width: 100%;
   background: #edf8ff;
@@ -489,7 +560,6 @@ const completePurchase = async () => {
   height: auto;
 }
 
-
 .input-panel {
   grid-column: 1;
   grid-row: 1;
@@ -501,7 +571,6 @@ const completePurchase = async () => {
 .bottom-panels {
   display: contents;
 }
-
 
 .purchase-action-panel {
   grid-column: 1;
@@ -521,7 +590,6 @@ const completePurchase = async () => {
   min-height: 100%;
   padding: 26px;
 }
-
 
 .panel-badge {
   display: inline-block;
@@ -623,7 +691,6 @@ const completePurchase = async () => {
   margin-top: 10px;
 }
 
-
 .wishlist-card .action-btn.primary {
   width: 100%;
   min-height: 68px;
@@ -634,7 +701,6 @@ const completePurchase = async () => {
   text-align: center;
   align-self: stretch;
 }
-
 
 .purchase-list {
   list-style: none;
@@ -697,14 +763,11 @@ const completePurchase = async () => {
   justify-content: center;
 }
 
-
-
 @media (max-width: 1600px) {
   .page-layout {
     grid-template-columns: minmax(0, 1fr) minmax(560px, 760px);
   }
 }
-
 
 @media (max-width: 1360px) {
   .page-layout {
@@ -750,7 +813,6 @@ const completePurchase = async () => {
     max-height: 280px;
   }
 }
-
 
 @media (max-width: 900px) {
   .wishlist-grid {

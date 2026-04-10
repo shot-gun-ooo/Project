@@ -8,16 +8,19 @@
         <div
           class="user-info-btn login-btn"
           v-if="!isLoggedIn"
-          @click="goToLogin"
-        >
+          @click="goToLogin">
           <span class="user-name">로그인 🔑</span>
         </div>
-
+        <div
+          class="user-info-btn logout-btn"
+          v-if="isLoggedIn"
+          @click="handleLogout">
+          <span class="user-name">로그아웃 🔓</span>
+        </div>
         <div
           class="user-info-btn mypage-btn"
           v-if="isLoggedIn"
-          @click="goToMyPage"
-        >
+          @click="goToMyPage">
           <span class="user-name">{{ userName }}님의 페이지 👤</span>
         </div>
       </div>
@@ -26,14 +29,13 @@
 </template>
 
 <script setup>
-import { useRouter } from "vue-router";
-import { ref, onMounted } from "vue";
-
-import { getUserInfo } from "@/utils/authutil";
+import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { getUserInfo, logoutProcess } from '../../utils/authutil';
 
 const router = useRouter();
 
-const userName = ref("");
+const userName = ref('');
 const isLoggedIn = ref(false); // 로그인 상태값
 const userInfo = getUserInfo();
 
@@ -43,21 +45,30 @@ const checkLoginStatus = () => {
   if (userInfo.authenticated) {
     userName.value = userInfo.name;
   } else {
-    userName.value = "로그인이 필요합니다";
+    userName.value = '로그인이 필요합니다';
   }
 };
 
 // 로그인 페이지로 이동
 const goToLogin = () => {
-  router.push({ name: "users/login" });
+  router.push({ name: 'users/login' });
 };
 
 // 프로필 클릭 시 동작
 const goToMyPage = () => {
   if (isLoggedIn.value) {
-    router.push({ name: "users/my", params: { id: userInfo.id } });
+    router.push({ name: 'users/my', params: { id: userInfo.id } });
   } else {
-    router.push({ name: "users/login" });
+    router.push({ name: 'users/login' });
+  }
+};
+
+const handleLogout = () => {
+  if (confirm('로그아웃 하시겠습니까?')) {
+    logoutProcess(() => {
+      isLoggedIn.value = false;
+      window.location.href = '/';
+    });
   }
 };
 
@@ -79,20 +90,26 @@ onMounted(() => {
   font-weight: 700;
   color: #333;
 }
-/* 버튼처럼 보이도록 스타일 수정 */
+.header-btn-group {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  align-items: center;
+}
 .user-info-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   background: white;
   padding: 8px 20px;
   border-radius: 30px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  cursor: pointer; /* 마우스 커서를 손가락 모양으로 */
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 .user-info-btn:hover {
-  transform: translateY(-2px); /* 호버 시 살짝 떠오르는 효과 */
+  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 .user-name {
