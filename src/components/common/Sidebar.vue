@@ -28,14 +28,14 @@
       </button>
     </div>
 
-    <!-- 수입/지출 입력 모달 -->
     <div
       v-if="isModalOpen"
       class="modal-overlay"
-      @click.self="isModalOpen = false">
+      @click.self="isModalOpen = false"
+    >
       <div class="modal-content">
         <h3 :class="modalType">
-          {{ modalType === 'income' ? '수입' : '지출' }} 내역 추가
+          {{ modalType === "income" ? "수입" : "지출" }} 내역 추가
         </h3>
         <div class="form-container">
           <div class="form-item">
@@ -45,25 +45,26 @@
 
           <div class="form-item">
             <label>카테고리</label>
-            <!-- 사용자가 요청한 드롭다운 방식 적용 -->
             <select v-model="formData.category" class="kb-select">
               <option value="">분류 선택</option>
 
               <optgroup v-if="modalType === 'income'" label="수입">
                 <option
-                  v-for="name in incomeCategories"
-                  :key="`income-${name}`"
-                  :value="name">
-                  {{ name }}
+                  v-for="item in incomeCategories"
+                  :key="`income-${item.id}`"
+                  :value="item.name"
+                >
+                  {{ item.name }}
                 </option>
               </optgroup>
 
               <optgroup v-if="modalType === 'expense'" label="지출">
                 <option
-                  v-for="name in expenseCategories"
-                  :key="`expense-${name}`"
-                  :value="name">
-                  {{ name }}
+                  v-for="item in expenseCategories"
+                  :key="`expense-${item.id}`"
+                  :value="item.name"
+                >
+                  {{ item.name }}
                 </option>
               </optgroup>
             </select>
@@ -78,7 +79,8 @@
             <input
               type="text"
               v-model="formData.memo"
-              placeholder="상세 내용을 적어주세요" />
+              placeholder="상세 내용을 적어주세요"
+            />
           </div>
         </div>
         <div class="modal-footer">
@@ -91,38 +93,35 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import axios from 'axios';
-import { getUserInfo } from '../../utils/authutil';
+import { onMounted, ref } from "vue";
+import axios from "axios";
+import { getUserInfo } from "../../utils/authutil";
 
 const isLoggedIn = ref(false);
 
-// 카테고리 목록 저장
 const incomeCategories = ref([]);
 const expenseCategories = ref([]);
 
-// 모달 및 폼 데이터 상태
 const isModalOpen = ref(false);
-const modalType = ref('income');
+const modalType = ref("income");
 const formData = ref({
-  date: new Date().toISOString().split('T')[0],
-  category: '',
+  date: new Date().toISOString().split("T")[0],
+  category: "",
   amount: 0,
-  memo: '',
-  type: '',
+  memo: "",
+  type: "",
 });
 
-// 카테고리 데이터 가져오기
 const fetchCategories = async () => {
   try {
     const [resIncome, resExpense] = await Promise.all([
-      axios.get('/api/incomeCategory'),
-      axios.get('/api/expenseCategory'),
+      axios.get("/api/incomeCategory"),
+      axios.get("/api/expenseCategory"),
     ]);
     incomeCategories.value = resIncome.data;
     expenseCategories.value = resExpense.data;
   } catch (error) {
-    console.error('카테고리 로드 실패:', error);
+    console.error("카테고리 로드 실패:", error);
   }
 };
 
@@ -133,31 +132,29 @@ const checkLoginStatus = () => {
 
 onMounted(() => {
   checkLoginStatus();
-  fetchCategories(); // 카테고리 로드 실행
+  fetchCategories();
 });
 
 const openModal = (type) => {
   modalType.value = type;
   formData.value = {
-    date: new Date().toISOString().split('T')[0],
-    category: '',
+    date: new Date().toISOString().split("T")[0],
+    category: "",
     amount: 0,
-    memo: '',
-    type: type, // income 또는 expense
+    memo: "",
+    type: type,
   };
   isModalOpen.value = true;
 };
 
 const submitData = async () => {
-  const { category, amount, date } = formData.value;
+  const { category, amount } = formData.value;
 
-  // 1. 필수 입력 항목 검사 (Validation)
   if (!category || category.trim() === "") {
     alert("분류를 선택해주세요. 카테고리는 필수 항목입니다.");
     return;
   }
 
-  // 2. 금액 유효성 및 음수 처리 (Exception Handling)
   const numericAmount = Number(amount);
   if (isNaN(numericAmount) || numericAmount <= 0) {
     alert("금액은 0원보다 큰 숫자로 입력해주세요. (음수 입력 불가)");
@@ -166,30 +163,29 @@ const submitData = async () => {
 
   const userInfo = getUserInfo();
   if (!userInfo || !userInfo.id) {
-    alert('로그인 정보가 없습니다.');
+    alert("로그인 정보가 없습니다.");
     return;
   }
 
   try {
     const postData = {
       ...formData.value,
-      amount: numericAmount, // 확실하게 숫자 타입으로 저장
+      amount: numericAmount,
       userid: String(userInfo.id),
     };
 
-    await axios.post('/api/transactions', postData);
-    alert('정상적으로 등록되었습니다.');
+    await axios.post("/api/transactions", postData);
+    alert("정상적으로 등록되었습니다.");
     isModalOpen.value = false;
     window.location.reload();
   } catch (error) {
-    console.error('데이터 등록 실패:', error);
-    alert('등록 중 오류가 발생했습니다.');
+    console.error("데이터 등록 실패:", error);
+    alert("등록 중 오류가 발생했습니다.");
   }
 };
 </script>
 
 <style scoped>
-/* 기존 스타일 유지 및 select 스타일 추가 */
 .kb-sidebar {
   width: 260px;
   height: 100vh;
@@ -232,7 +228,6 @@ const submitData = async () => {
   margin-right: 14px;
   font-size: 18px;
 }
-
 .kb-actions {
   display: flex;
   flex-direction: column;
@@ -255,12 +250,6 @@ const submitData = async () => {
   background: #ffebee;
   color: #d50000;
 }
-.kb-logout {
-  background: #fff;
-  border: 1px solid #ccc;
-  margin-top: 5px;
-}
-
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -307,7 +296,6 @@ const submitData = async () => {
 .form-item input:focus {
   border-color: #2962ff;
 }
-
 .modal-footer {
   display: flex;
   gap: 10px;
@@ -331,7 +319,6 @@ const submitData = async () => {
   border-radius: 10px;
   cursor: pointer;
 }
-
 .income {
   color: #2962ff;
 }
