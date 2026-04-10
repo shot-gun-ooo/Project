@@ -52,7 +52,7 @@
         <strong>개인정보 처리방침</strong>에 동의하는 것으로 간주됩니다
       </div>
 
-      <button class="signup-btn" @click="handleSignup">
+      <button class="signup-btn" @click="handleSignup" :disabled="!isFormValid">
         이메일로 가입하기
       </button>
     </div>
@@ -87,7 +87,16 @@ const isEmailValid = computed(() => {
 // 비밀번호 형식 검사
 const ispasswordValid = computed(() => {
   const passwordRegex = /^[a-z0-9]{4,12}$/;
-  return passwordRegex.test(userid.value);
+  return passwordRegex.test(password.value);
+});
+
+const isFormValid = computed(() => {
+  return (
+    name.value.trim().length >= 1 && // 이름 입력 여부
+    isIdValid.value && // 아이디 정규식 통과
+    isEmailValid.value && // 이메일 정규식 통과
+    ispasswordValid.value // 비밀번호 정규식 통과
+  );
 });
 
 const handleSignup = async () => {

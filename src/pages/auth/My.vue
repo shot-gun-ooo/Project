@@ -23,6 +23,16 @@
       </section>
 
       <section class="info-form-card">
+        <div v-if="userDetail.roles && userDetail.roles.includes('admins')">
+          <h3 class="card-title">관리자 설정</h3>
+          <p class="admin-desc">시스템의 수입/지출 카테고리를 관리합니다.</p>
+          <button class="btn-admin" @click="router.push('/admin')">
+            카테고리 관리 페이지로 이동
+          </button>
+        </div>
+        <hr
+          class="divider"
+          v-if="userDetail.roles && userDetail.roles.includes('admins')" />
         <h3 class="card-title">계정 정보</h3>
 
         <div class="form-group">
@@ -77,7 +87,7 @@ const userDetail = ref({
   name: '',
   email: '',
   password: '',
-  profileImage: null,
+  roles: [],
 });
 
 // 1. 초기 데이터 로드
@@ -88,6 +98,7 @@ const fetchUserInfo = async () => {
       const response = await axios.get(`/api/users/${userInfo.id}`);
       if (response) {
         userDetail.value = response.data;
+        // userDetail.value.role = 'admin';
       }
     } catch (error) {
       alert(error);
@@ -216,15 +227,13 @@ const handleDeleteAccount = async () => {
 }
 
 .btn-withdraw {
-  border: 1px solid #ffcccc;
-  background: white;
-  color: #ff5c5c;
+  border: none;
+  background: #fadbd8;
+  color: #e74c3c;
   padding: 8px 24px;
   border-radius: 8px;
   cursor: pointer;
 }
-
-/* 오른쪽 폼 섹션 */
 .card-title {
   font-size: 18px;
   font-weight: 700;
@@ -259,8 +268,8 @@ const handleDeleteAccount = async () => {
 }
 
 .btn-cancel {
-  background: #9be0ff; /* 시안의 하늘색 버튼 */
-  color: white;
+  background: #fadbd8;
+  color: #e74c3c;
   border: none;
   padding: 10px 25px;
   border-radius: 8px;
@@ -285,5 +294,34 @@ const handleDeleteAccount = async () => {
   .mypage-grid {
     grid-template-columns: 1fr;
   }
+}
+.divider {
+  border: none;
+  border-top: 1px dashed #ddd;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.admin-desc {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 15px;
+  margin-top: -15px;
+}
+
+.btn-admin {
+  background: #333;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.2s;
+}
+
+.btn-admin:hover {
+  background: #000;
 }
 </style>
