@@ -1,12 +1,23 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:3000';
+const BASEURI = 'http://localhost:3000/wishlists';
 
-export const getWishlists = () => axios.get(`${BASE_URL}/wishlists`);
-export const getWishlistById = (id) => axios.get(`${BASE_URL}/wishlists/${id}`);
-export const createWishlist = (data) =>
-  axios.post(`${BASE_URL}/wishlists`, data);
-export const deleteWishlist = (id) =>
-  axios.delete(`${BASE_URL}/wishlists/${id}`);
-export const updateSavedAmount = (id, savedAmount) =>
-  axios.patch(`${BASE_URL}/wishlists/${id}`, { savedAmount });
+export function getWishlists() {
+  return axios.get(BASEURI);
+}
+
+export function getWishlistById(id) {
+  return axios.get(`${BASEURI}/${id}`);
+}
+
+export function createWishlist(data) {
+  return axios.post(BASEURI, data);
+}
+
+export function updateSavedAmount(id, savedAmount) {
+  return axios.patch(`${BASEURI}/${id}`, { savedAmount });
+}
+
+export function deleteWishlist(id) {
+  return axios.delete(`http://localhost:3000/wishlists/${id}`);
+}
