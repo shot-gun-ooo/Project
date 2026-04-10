@@ -1,6 +1,8 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import axios from 'axios';
 import { api } from '@/api/index.js';
+import { getUserInfo } from '@/utils/authutil.js';
 
 const transactions = ref([]);
 const latestTransactions = ref([]);
@@ -152,24 +154,6 @@ onMounted(fetchData);
           <div class="grid-lines">
             <div v-for="n in 4" :key="n" class="grid-line"></div>
           </div>
-          <svg viewBox="0 0 600 200" class="chart-svg">
-            <defs>
-              <linearGradient id="chart-gradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="rgba(255, 126, 126, 0.4)" />
-                <stop offset="100%" stop-color="rgba(255, 126, 126, 0)" />
-              </linearGradient>
-            </defs>
-            <path
-              d="M0,180 C100,160 200,170 300,90 C400,60 500,110 600,70 L600,200 L0,200 Z"
-              fill="url(#chart-gradient)" />
-            <path
-              d="M0,180 C100,160 200,170 300,90 C400,60 500,110 600,70"
-              fill="none"
-              stroke="#ff7e7e"
-              stroke-width="4"
-              stroke-linecap="round" />
-            <circle cx="300" cy="90" r="6" fill="#ff7e7e" />
-          </svg>
           <div class="month-labels">
             <div v-for="m in monthlyStats" :key="m.label" class="month-item">
               <div class="bar-container">
