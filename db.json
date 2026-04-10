@@ -199,14 +199,26 @@
       "amount": 300000,
       "memo": "겨울 코트 세일",
       "id": "t12"
+    },
+    {
+      "date": "2026-04-10",
+      "category": {
+        "id": 4,
+        "name": "공과금"
+      },
+      "amount": 100000000,
+      "memo": "",
+      "type": "expense",
+      "userid": "1",
+      "id": "gaHwaMx"
     }
   ],
   "budgets": [
     {
       "id": "1",
       "userid": "1",
-      "date": "2026-04-09",
-      "amount": 5000000,
+      "date": "2026-04-10",
+      "amount": 1000000,
       "period": "current",
       "category": "전체"
     },
@@ -260,8 +272,8 @@
     },
     {
       "userid": "2",
-      "amount": 700000,
-      "date": "2026-04-09",
+      "amount": 100000,
+      "date": "2026-04-10",
       "period": "current",
       "category": "전체",
       "id": "egGX0tY"
