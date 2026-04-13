@@ -220,6 +220,12 @@
       "name": "저축"
     }
   ],
+  "expenseCategory": [
+    {
+      "name": "식사",
+      "id": 1
+    }
+  ],
   "periodicExpense": [
     {
       "userid": "2",
@@ -276,6 +282,15 @@
       "targetDate": "2026-04-23",
       "status": "proceeding",
       "id": 1
+    },
+    {
+      "userid": "4",
+      "itemName": "애플워치",
+      "targetPrice": 100000,
+      "savedAmount": 0,
+      "targetDate": "2026-04-23",
+      "status": "proceeding",
+      "id": 2
     }
   ],
   "purchases": [

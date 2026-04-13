@@ -4,7 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"npm run frontend\" \"npm run backend\" \"npm run upload\"",
+    "frontend": "vite",
+    "backend": "json-server db.json --port 3000 --host 127.0.0.1",
+    "upload": "node server.js",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -20,6 +23,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.5",
+    "concurrently": "^9.2.1",
     "vite": "^8.0.4"
   }
 }
