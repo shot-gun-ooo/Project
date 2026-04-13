@@ -1,7 +1,6 @@
 <template>
   <header class="kb-header">
     <div class="header-left">
-      <h2 class="page-title">홈 (대시보드)</h2>
     </div>
     <div class="header-right">
       <div class="header-btn-group">

@@ -164,6 +164,161 @@
       "type": "expense",
       "userid": "1",
       "id": "AGKB2Pa"
+    },
+    {
+      "date": "2026-04-13",
+      "category": "월급",
+      "amount": 2000000,
+      "memo": "4월 월급",
+      "type": "income",
+      "userid": "5",
+      "id": "F7GlkVj"
+    },
+    {
+      "date": "2026-04-13",
+      "category": "식비",
+      "amount": 15000,
+      "memo": "점심",
+      "type": "expense",
+      "userid": "5",
+      "id": "1XzB3vg"
+    },
+    {
+      "date": "2026-03-11",
+      "category": "쇼핑",
+      "amount": 500000,
+      "memo": "옷 구매",
+      "type": "expense",
+      "userid": "5",
+      "id": "j4FCBJd"
+    },
+    {
+      "date": "2026-02-10",
+      "category": "의료",
+      "amount": 3500000,
+      "memo": "수술",
+      "type": "expense",
+      "userid": "5",
+      "id": "p16VglI"
+    },
+    {
+      "date": "2026-01-01",
+      "category": "식비",
+      "amount": 100000,
+      "memo": "새해 외식",
+      "type": "expense",
+      "userid": "5",
+      "id": "byzhwAm"
+    },
+    {
+      "date": "2025-12-28",
+      "category": "주거",
+      "amount": 10000000,
+      "memo": "보증금",
+      "type": "expense",
+      "userid": "5",
+      "id": "R8RKAVL"
+    },
+    {
+      "date": "2025-11-04",
+      "category": "교통비",
+      "amount": 120000,
+      "memo": "ktx 왕복",
+      "type": "expense",
+      "userid": "5",
+      "id": "rlqcFuA"
+    },
+    {
+      "userid": "5",
+      "date": "2026-04-13",
+      "type": "expense",
+      "category": "저축",
+      "amount": 100000,
+      "memo": "에어팟프로 저축",
+      "id": "pVdpbY1"
+    },
+    {
+      "date": "2026-04-13",
+      "category": "월급",
+      "amount": 1500000,
+      "memo": "월급",
+      "type": "income",
+      "userid": "8",
+      "id": "27Gy452"
+    },
+    {
+      "date": "2026-04-13",
+      "category": "식비",
+      "amount": 100000,
+      "memo": "점심",
+      "type": "expense",
+      "userid": "8",
+      "id": "m_ZSC_c"
+    },
+    {
+      "userid": "8",
+      "date": "2026-04-01",
+      "type": "expense",
+      "category": "식비",
+      "detailCategory": "",
+      "amount": 100000,
+      "memo": "저녁",
+      "id": "vcicAYA"
+    },
+    {
+      "userid": "8",
+      "date": "2026-04-01",
+      "type": "expense",
+      "category": "고정 지출",
+      "detailCategory": "",
+      "amount": 15000,
+      "memo": "유튜브",
+      "id": "LNz7D0S"
+    },
+    {
+      "userid": "8",
+      "date": "2026-04-13",
+      "type": "expense",
+      "category": "저축",
+      "amount": 200000,
+      "memo": "애플워치 저축",
+      "id": "R9Ks_dQ"
+    },
+    {
+      "userid": "8",
+      "date": "2026-04-13",
+      "type": "expense",
+      "category": "저축",
+      "amount": 2500000,
+      "memo": "애플워치 저축",
+      "id": "riB2ftY"
+    },
+    {
+      "date": "2026-03-18",
+      "category": "쇼핑",
+      "amount": 1000000,
+      "memo": "컴퓨터 구매",
+      "type": "expense",
+      "userid": "5",
+      "id": "PJkeGbx"
+    },
+    {
+      "date": "2025-11-17",
+      "category": "주거",
+      "amount": 100000,
+      "memo": "",
+      "type": "expense",
+      "userid": "5",
+      "id": "4z8KG_O"
+    },
+    {
+      "date": "2026-04-13",
+      "category": "용돈",
+      "amount": 10000,
+      "memo": "용돈",
+      "type": "income",
+      "userid": "5",
+      "id": "YEtOkje"
     }
   ],
   "budgets": [
@@ -174,56 +329,82 @@
       "amount": 12000,
       "period": "current",
       "category": "전체"
+    },
+    {
+      "userid": "5",
+      "amount": 1500000,
+      "date": "2026-04-13",
+      "period": "current",
+      "category": "전체",
+      "id": "XyY9mFK"
+    },
+    {
+      "userid": "8",
+      "amount": 3000000,
+      "date": "2026-04-13",
+      "period": "current",
+      "category": "전체",
+      "id": "o8tOHod"
     }
   ],
   "incomeCategory": [
     {
-      "name": "기타3",
+      "name": "월급",
+      "id": 1
+    },
+    {
+      "name": "용돈",
+      "id": 2
+    },
+    {
+      "name": "이자",
+      "id": 3
+    },
+    {
+      "name": "부업",
+      "id": 4
+    },
+    {
+      "name": "기타",
       "id": 5
     },
     {
-      "name": "기타1",
+      "name": "로또",
       "id": 6
     }
   ],
   "expenseCategory": [
     {
-      "id": 1,
-      "name": "식비"
-    },
-    {
-      "id": 2,
-      "name": "교통비"
-    },
-    {
-      "id": 3,
-      "name": "유흥"
-    },
-    {
-      "id": 4,
-      "name": "공과금"
-    },
-    {
-      "id": 5,
-      "name": "의료"
-    },
-    {
-      "id": 6,
-      "name": "주거"
-    },
-    {
-      "id": 7,
-      "name": "쇼핑"
-    },
-    {
-      "id": 8,
-      "name": "저축"
-    }
-  ],
-  "expenseCategory": [
-    {
-      "name": "식사",
+      "name": "식비",
       "id": 1
+    },
+    {
+      "name": "교통비",
+      "id": 2
+    },
+    {
+      "name": "공과금",
+      "id": 4
+    },
+    {
+      "name": "의료",
+      "id": 5
+    },
+    {
+      "name": "주거",
+      "id": 6
+    },
+    {
+      "name": "쇼핑",
+      "id": 7
+    },
+    {
+      "name": "저축",
+      "id": 8
+    },
+    {
+      "name": "기타",
+      "id": 9
     }
   ],
   "periodicExpense": [
@@ -271,6 +452,15 @@
       "amount": 30000,
       "memo": "통신비",
       "id": "j7CwJoh"
+    },
+    {
+      "userid": "8",
+      "date": "2026-04-01",
+      "type": "expense",
+      "category": "고정 지출",
+      "amount": 15000,
+      "memo": "유튜브",
+      "id": "DUT2rLO"
     }
   ],
   "wishlists": [
@@ -291,6 +481,15 @@
       "targetDate": "2026-04-23",
       "status": "proceeding",
       "id": 2
+    },
+    {
+      "userid": "5",
+      "itemName": "에어팟프로",
+      "targetPrice": 369000,
+      "savedAmount": 100000,
+      "targetDate": "2026-12-30",
+      "status": "proceeding",
+      "id": 3
     }
   ],
   "purchases": [
@@ -307,6 +506,13 @@
       "itemName": "카메라",
       "completionDate": "2026-04-10",
       "id": "FX629qm"
+    },
+    {
+      "sourceWishlistId": "4",
+      "userid": "8",
+      "itemName": "애플워치",
+      "completionDate": "2026-04-13",
+      "id": "I5DTCXN"
     }
   ]
 }

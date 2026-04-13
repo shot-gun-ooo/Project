@@ -1,7 +1,7 @@
 <template>
   <aside class="kb-sidebar">
     <div class="logo-area">
-      <span class="logo-text">KB 가계부</span>
+      <span class="logo-text">WISH</span>
     </div>
 
     <nav class="kb-nav">
@@ -200,10 +200,15 @@ const submitData = async () => {
   z-index: 1000;
 }
 .logo-area {
-  font-size: 24px;
-  font-weight: bold;
   margin-bottom: 40px;
-  color: #333;
+}
+.logo-text {
+  font-size: 32px;
+  font-weight: 900;
+  color: #2962ff;
+  letter-spacing: -1.5px;
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,
+    sans-serif;
 }
 .kb-nav {
   flex-grow: 1;

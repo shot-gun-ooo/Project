@@ -172,7 +172,9 @@ onMounted(fetchData);
 </script>
 
 <template>
-  <div class="dash-grid">
+  <div class="dash-container">
+    <h2 class="page-title">홈 (대시보드)</h2>
+    <div class="dash-grid">
     <section class="dash-main">
       <div class="kb-card reality-check-banner">
         <div class="reality-icon">💸</div>
@@ -288,13 +290,22 @@ onMounted(fetchData);
       </div>
     </section>
   </div>
+</div>
 </template>
 
 <style scoped>
+.dash-container {
+  padding: 20px 40px;
+}
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+}
 .dash-grid {
   display: flex;
   gap: 30px;
-  padding: 20px;
 }
 .dash-main {
   flex: 2;
