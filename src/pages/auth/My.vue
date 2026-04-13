@@ -17,7 +17,11 @@
         <h2 class="user-name">{{ userDetail.name }}</h2>
         <p class="user-email">{{ userDetail.email }}</p>
 
-        <button class="btn-withdraw" @click="handleDeleteAccount">
+        <!-- 관리자는 탈퇴 버튼이 보이지 않도록 수정 -->
+        <button
+          v-if="!(userDetail.roles && userDetail.roles.includes('admins'))"
+          class="btn-withdraw"
+          @click="handleDeleteAccount">
           탈퇴하기
         </button>
       </section>

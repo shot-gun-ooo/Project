@@ -14,11 +14,19 @@
         class="signup-input"
         placeholder="이름을 입력하세요" />
 
-      <input
-        v-model="userid"
-        type="text"
-        class="signup-input"
-        placeholder="아이디를 입력하세요" />
+      <div class="input-group">
+        <input
+          v-model="userid"
+          type="text"
+          class="signup-input no-margin"
+          placeholder="아이디를 입력하세요" />
+        <button
+          class="check-btn"
+          @click="checkIdDuplication"
+          :disabled="!isIdValid">
+          중복 확인
+        </button>
+      </div>
       <p
         v-if="userid.length > 0 && !isIdValid"
         style="color: red; font-size: 11px">
@@ -60,7 +68,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
@@ -71,6 +79,12 @@ const name = ref('');
 const userid = ref('');
 const email = ref('');
 const password = ref('');
+
+const isIdChecked = ref(false);
+
+watch(userid, () => {
+  isIdChecked.value = false;
+});
 
 // 아이디 형식 검사
 const isIdValid = computed(() => {
@@ -94,6 +108,7 @@ const isFormValid = computed(() => {
   return (
     name.value.trim().length >= 1 && // 이름 입력 여부
     isIdValid.value && // 아이디 정규식 통과
+    isIdChecked.value &&
     isEmailValid.value && // 이메일 정규식 통과
     ispasswordValid.value // 비밀번호 정규식 통과
   );
@@ -101,8 +116,8 @@ const isFormValid = computed(() => {
 
 const handleSignup = async () => {
   // 1. 모든 항목이 입력되었는지 확인.
-  if (!name.value || !userid.value || !email.value || !password.value) {
-    alert('모든 항목을 입력해주세요.');
+  if (!isFormValid.value) {
+    alert('모든 항목을 입력하고 아이디 중복 확인을 완료해주세요.');
     return;
   }
 
@@ -121,15 +136,29 @@ const handleSignup = async () => {
   } catch (error) {
     alert('회원가입 중 오류가 발생했습니다.');
   }
+};
+// 아이디 중복 확인
+const checkIdDuplication = async () => {
+  if (!isIdValid.value) return;
 
-  // 가입이 완료되었는지 확인하기 위한 것.
-  // console.log('가입 시도:', {
-  //   name: name.value,
-  //   userid: userid.value,
-  //   email: email.value,
-  //   password: password.value,
-  // });
-  // alert('회원가입 버튼 클릭됨!');
+  try {
+    const response = await axios.get('/api/users');
+    const existingUsers = response.data;
+
+    const isDuplicated = existingUsers.some(
+      (user) => user.userid === userid.value,
+    );
+
+    if (isDuplicated) {
+      alert('이미 사용 중인 아이디입니다. 다른 아이디를 입력해주세요.');
+      isIdChecked.value = false;
+    } else {
+      alert('사용 가능한 아이디입니다.');
+      isIdChecked.value = true;
+    }
+  } catch (error) {
+    console.log(error);
+  }
 };
 </script>
 
@@ -202,6 +231,43 @@ const handleSignup = async () => {
   border-color: #cccccc;
 }
 
+/* 아이디 입력 & 중복확인 버튼 그룹 (새로 추가) */
+.input-group {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.input-group .no-margin {
+  margin-bottom: 0;
+  flex: 1; /* 인풋창이 남은 공간 차지 */
+}
+
+/* 중복확인 버튼 스타일 (새로 추가) */
+.check-btn {
+  padding: 0 16px;
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #e2e2e2;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.check-btn:hover:not(:disabled) {
+  background-color: #e8e8e8;
+}
+
+.check-btn:disabled {
+  background-color: #fafafa;
+  color: #bbb;
+  cursor: not-allowed;
+}
+
 /* 약관 동의 텍스트 */
 .agreement-text {
   width: 100%;
@@ -222,7 +288,7 @@ const handleSignup = async () => {
 .signup-btn {
   width: 100%;
   padding: 13px;
-  background-color: #9be0ff; /* 이미지의 파스텔 톤 블루 */
+  background-color: #9be0ff;
   color: #ffffff;
   border: none;
   border-radius: 4px;
@@ -232,7 +298,12 @@ const handleSignup = async () => {
   transition: background-color 0.2s;
 }
 
-.signup-btn:hover {
+.signup-btn:hover:not(:disabled) {
   background-color: #8cd1f0;
+}
+
+.signup-btn:disabled {
+  background-color: #d8f1fc;
+  cursor: not-allowed;
 }
 </style>
