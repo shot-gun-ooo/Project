@@ -2,7 +2,6 @@
   <div class="transaction-page">
     <div class="page-top">
       <div>
-        <p class="eyebrow">대시보드 앱</p>
         <h1>전체 내역 조회</h1>
       </div>
 
@@ -218,7 +217,10 @@
                     </span>
                   </td>
                   <td class="manage-cell">
-                    <button class="mini-btn" @click="beginEditTransaction(item)">
+                    <button
+                      class="mini-btn"
+                      @click="beginEditTransaction(item)"
+                    >
                       수정
                     </button>
                     <button
@@ -232,9 +234,7 @@
               </tr>
 
               <tr
-                v-if="
-                  !isAddingTransaction && filteredTransactions.length === 0
-                "
+                v-if="!isAddingTransaction && filteredTransactions.length === 0"
               >
                 <td colspan="6" class="empty">표시할 거래 내역이 없습니다.</td>
               </tr>
@@ -458,17 +458,13 @@ function getCurrentUserId() {
 const today = new Date();
 const currentYear = today.getFullYear();
 const currentMonth = String(today.getMonth() + 1).padStart(2, "0");
-const lastDayOfMonth = new Date(
-  currentYear,
-  today.getMonth() + 1,
-  0
-).getDate();
+const lastDayOfMonth = new Date(currentYear, today.getMonth() + 1, 0).getDate();
 
 const range = reactive({
   start: `${currentYear}-${currentMonth}-01`,
   end: `${currentYear}-${currentMonth}-${String(lastDayOfMonth).padStart(
     2,
-    "0"
+    "0",
   )}`,
 });
 
@@ -515,14 +511,16 @@ const editingPeriodicExpense = reactive({
   payDay: 1,
 });
 
-const draftFilter = reactive({  //입력
+const draftFilter = reactive({
+  //입력
   keyword: "",
   date: "",
   category: "",
   amount: null,
 });
 
-const activeFilter = reactive({  //검색
+const activeFilter = reactive({
+  //검색
   keyword: "",
   date: "",
   category: "",
@@ -531,21 +529,18 @@ const activeFilter = reactive({  //검색
 
 const incomeCategorySet = computed(() => {
   return new Set(
-    incomeCategories.value.map((item) =>
-      String(item).trim().toLowerCase()
-    )
+    incomeCategories.value.map((item) => String(item).trim().toLowerCase()),
   );
 });
 
 const expenseCategorySet = computed(() => {
   return new Set(
-    expenseCategories.value.map((item) =>
-      String(item).trim().toLowerCase()
-    )
+    expenseCategories.value.map((item) => String(item).trim().toLowerCase()),
   );
 });
 
-const filteredTransactions = computed(() => {  //날짜반영
+const filteredTransactions = computed(() => {
+  //날짜반영
   return [...transactions.value]
     .filter((item) => isInRange(item.date))
     .filter((item) => {
@@ -563,12 +558,7 @@ const filteredTransactions = computed(() => {  //날짜반영
         activeFilter.amount === "" ||
         itemAmount === Number(activeFilter.amount);
 
-      return (
-        matchesKeyword &&
-        matchesDate &&
-        matchesCategory &&
-        matchesAmount
-      );
+      return matchesKeyword && matchesDate && matchesCategory && matchesAmount;
     })
     .sort((a, b) => {
       if (a.date === b.date) return Number(b.id) - Number(a.id);
@@ -576,10 +566,11 @@ const filteredTransactions = computed(() => {  //날짜반영
     });
 });
 
-const totalPeriodicExpense = computed(() => {  //고정지출 합계
+const totalPeriodicExpense = computed(() => {
+  //고정지출 합계
   return periodicExpenses.value.reduce(
     (sum, item) => sum + Number(item.amount || 0),
-    0
+    0,
   );
 });
 
@@ -591,7 +582,8 @@ onMounted(async () => {
   ]);
 });
 
-async function fetchTransactions() {  //내역
+async function fetchTransactions() {
+  //내역
   const userId = getCurrentUserId();
 
   if (!userId) {
@@ -610,7 +602,8 @@ async function fetchTransactions() {  //내역
   }
 }
 
-async function fetchPeriodicExpenses() {  //고정지출
+async function fetchPeriodicExpenses() {
+  //고정지출
   const userId = getCurrentUserId();
 
   if (!userId) {
@@ -670,7 +663,8 @@ function cancelAddTransaction() {
   isAddingTransaction.value = false;
 }
 
-async function createTransaction() {  //저장 누르면 검증 후 POST요청
+async function createTransaction() {
+  //저장 누르면 검증 후 POST요청
   const userId = getCurrentUserId();
 
   if (!userId) {
@@ -718,8 +712,7 @@ function beginEditTransaction(item) {
   editingTransaction.memo = item.memo;
   editingTransaction.amount = item.amount;
   editingTransaction.category = item.category;
-  editingTransaction.type =
-    item.type || detectTransactionType(item.category);
+  editingTransaction.type = item.type || detectTransactionType(item.category);
 }
 
 function cancelEditTransaction() {
@@ -765,7 +758,7 @@ async function removeTransaction(id) {
   try {
     await axios.delete(`${API_BASE}/transactions/${targetId}`);
     transactions.value = transactions.value.filter(
-      (item) => String(item.id) !== targetId
+      (item) => String(item.id) !== targetId,
     );
 
     if (editingTransactionId.value === targetId) {
@@ -807,11 +800,7 @@ async function createPeriodicExpense() {
   }
 
   const payDay = clampDay(newPeriodicExpense.payDay);
-  const fixedDate = buildDateFromDay(
-    currentYear,
-    Number(currentMonth),
-    payDay
-  );
+  const fixedDate = buildDateFromDay(currentYear, Number(currentMonth), payDay);
 
   try {
     await axios.post(`${API_BASE}/periodicExpense`, {
@@ -855,11 +844,7 @@ async function updatePeriodicExpense() {
   }
 
   const payDay = clampDay(editingPeriodicExpense.payDay);
-  const fixedDate = buildDateFromDay(
-    currentYear,
-    Number(currentMonth),
-    payDay
-  );
+  const fixedDate = buildDateFromDay(currentYear, Number(currentMonth), payDay);
 
   try {
     await axios.patch(
@@ -870,7 +855,7 @@ async function updatePeriodicExpense() {
         date: fixedDate,
         category: "고정 지출",
         type: "expense",
-      }
+      },
     );
 
     editingPeriodicExpenseId.value = null;
@@ -890,7 +875,7 @@ async function removePeriodicExpense(id) {
   try {
     await axios.delete(`${API_BASE}/periodicExpense/${targetId}`);
     periodicExpenses.value = periodicExpenses.value.filter(
-      (item) => String(item.id) !== targetId
+      (item) => String(item.id) !== targetId,
     );
 
     if (editingPeriodicExpenseId.value === targetId) {
@@ -902,7 +887,8 @@ async function removePeriodicExpense(id) {
   }
 }
 
-async function savePeriodicExpensesToTransactions() { //고정을 내역에 반영
+async function savePeriodicExpensesToTransactions() {
+  //고정을 내역에 반영
   const userId = getCurrentUserId();
 
   if (!userId) {
@@ -920,7 +906,7 @@ async function savePeriodicExpensesToTransactions() { //고정을 내역에 반�
       `${API_BASE}/transactions`,
       {
         params: { userid: userId },
-      }
+      },
     );
 
     const tasks = [];
@@ -949,7 +935,7 @@ async function savePeriodicExpensesToTransactions() { //고정을 내역에 반�
             detailCategory: "",
             amount: Number(item.amount),
             memo: item.memo,
-          })
+          }),
         );
       }
     }
@@ -986,7 +972,9 @@ function resetFilter() {
 }
 
 function detectTransactionType(category) {
-  const normalized = String(category || "").trim().toLowerCase();
+  const normalized = String(category || "")
+    .trim()
+    .toLowerCase();
 
   if (!normalized) return "expense";
   if (normalized === "고정 지출") return "expense";
@@ -1000,7 +988,7 @@ function syncTypeFromCategory(target) {
     newTransaction.type = detectTransactionType(newTransaction.category);
   } else {
     editingTransaction.type = detectTransactionType(
-      editingTransaction.category
+      editingTransaction.category,
     );
   }
 }
@@ -1051,7 +1039,7 @@ function buildDateFromDay(year, month, day) {
   const safeDay = Math.min(Number(day), lastDay);
   return `${year}-${String(month).padStart(2, "0")}-${String(safeDay).padStart(
     2,
-    "0"
+    "0",
   )}`;
 }
 

@@ -1,7 +1,7 @@
 <template>
   <aside class="kb-sidebar">
     <div class="logo-area">
-      <span class="logo-text">WISH</span>
+      <span class="logo-text">WISH<span class="logo-dot">.</span></span>
     </div>
 
     <nav class="kb-nav">
@@ -203,12 +203,20 @@ const submitData = async () => {
   margin-bottom: 40px;
 }
 .logo-text {
+  font-family: "Montserrat", sans-serif;
   font-size: 32px;
   font-weight: 900;
-  color: #2962ff;
-  letter-spacing: -1.5px;
-  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,
-    sans-serif;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #2962ff 0%, #6200ea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: baseline;
+}
+.logo-dot {
+  color: #6200ea;
+  -webkit-text-fill-color: #6200ea; /* Ensure dot has solid color */
+  margin-left: 2px;
 }
 .kb-nav {
   flex-grow: 1;
